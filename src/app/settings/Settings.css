@@ -1,0 +1,132 @@
+.settings-page {
+    padding: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 6rem;
+}
+
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.message {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.message.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.message.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.settings-section {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 0.375rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.btn-secondary {
+    flex: 1;
+    padding: 0.75rem;
+    background: white;
+    color: #4b5563;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-width: fit-content;
+}
+
+.btn-danger {
+    flex: 1;
+    padding: 0.75rem;
+    background: white;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.hint {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0.75rem 0 0;
+}

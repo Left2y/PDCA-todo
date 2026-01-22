@@ -1,0 +1,15 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: pdca-v1
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_PATH=/data/app.db
+      # 可选：应用层简单口令
+      # - APP_SHARED_KEY=change_me
+    volumes:
+      - ./data:/data

@@ -1,0 +1,295 @@
+.task-list-container {
+    padding: 0 0 2rem;
+}
+
+.task-section {
+    margin-bottom: 1.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.section-icon {
+    font-size: 1.25rem;
+}
+
+.section-progress {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+}
+
+.empty-hint {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 1.5rem;
+    background: #f9fafb;
+    border-radius: 0.75rem;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.task-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.task-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.task-done {
+    opacity: 0.6;
+    background: #f9fafb;
+}
+
+.task-done .task-text {
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+.task-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    cursor: pointer;
+}
+
+.task-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.task-checkbox input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkmark {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.task-checkbox input:checked+.checkmark {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-color: #10b981;
+}
+
+.task-checkbox input:checked+.checkmark::after {
+    content: '✓';
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.task-content {
+    flex: 1;
+}
+
+.task-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1f2937;
+    line-height: 1.4;
+}
+
+.task-meta {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.375rem;
+}
+
+.task-type {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.task-type-must {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.task-type-should {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.task-time {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.task-expand {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    transition: transform 0.2s ease;
+}
+
+.task-expand.expanded {
+    transform: rotate(180deg);
+}
+
+.task-details {
+    padding: 0 1rem 1rem;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 0;
+    padding-top: 1rem;
+    background: #fafafa;
+}
+
+.task-detail-row {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.detail-label {
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+.detail-value {
+    color: #374151;
+}
+
+/* 信息卡片 */
+.info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+}
+
+.risk-card {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(to right, rgba(245, 158, 11, 0.05), white);
+}
+
+.adjustment-card {
+    border-left: 4px solid #8b5cf6;
+    background: linear-gradient(to right, rgba(139, 92, 246, 0.05), white);
+}
+
+.info-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.5rem;
+}
+
+.info-icon {
+    font-size: 1rem;
+}
+
+.info-text {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.info-signal {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0.5rem 0 0;
+}
+
+.adjustment-type {
+    font-size: 0.7rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+}
+
+.type-goal {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.type-resource {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.type-do {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+/* 假设 */
+.assumptions-section {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.75rem;
+}
+
+.assumptions-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.75rem;
+}
+
+.assumptions-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.assumptions-list li {
+    margin-bottom: 0.375rem;
+}
+
+.assumptions-list li:last-child {
+    margin-bottom: 0;
+}
