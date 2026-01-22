@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PDCA Todo V1 - 语音生成今日清单
 
-## Getting Started
+一款基于 **Next.js 14+** 和 **SQLite** 的全栈 PDCA 个人效率助理。通过语音输入，自动利用大模型（LLM）生成结构化的每日计划。
 
-First, run the development server:
+## 🌟 核心特性
+
+- 🎙️ **语音驱动**：集成阿里百炼 ASR（Paraformer-Realtime）服务，支持长达 5 分钟的高质量语音转写。
+- 🤖 **智能规划**：结合 LLM（通义千问）自动将口语描述转化为标准的 PDCA 任务卡（Must/Should 结构）。
+- 📂 **本地存储**：后端采用 SQLite 数据库存储，支持跨设备同步（配合 NAS 部署），数据完全由用户掌控。
+- 📱 **PWA 支持**：完善的移动端适配（iOS 兼容），支持添加到主屏幕（A2HS），提供原生应用般的流畅体验。
+- 🛠️ **全栈架构**：使用 Next.js App Router，响应速度快，部署简单。
+
+## 🚀 快速开始
+
+### 1. 环境准备
+- Node.js 18+
+- [阿里云百炼 API Key](https://bailian.console.aliyun.com/) (用于 ASR 和 LLM)
+
+### 2. 安装与运行
+```bash
+# 克隆项目
+git clone https://github.com/Left2y/PDCA-todo.git
+cd PDCA-todo
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+```
+打开浏览器访问 `http://localhost:3000`。
+
+### 3. 配置说明
+进入应用内的 **设置** 页面：
+- 填入你的 `API Key`。
+- 配置所需的 ASR 和 LLM 模型名称（默认已填好）。
+
+## 🐳 Docker 部署 (推荐 NAS 用户)
+
+项目提供了 Docker 镜像支持，方便在群晖、威联通等设备一键运行：
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 使用 Docker Compose 启动
+docker-compose up -d
 ```
+> 默认端口：3000，数据库映射至 `./data` 目录。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ 技术栈
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**: Next.js (App Router), TypeScript, Vanilla CSS
+- **Backend**: Next.js API Routes
+- **Database**: SQLite (via `sql.js`)
+- **Validation**: Zod
+- **AI Services**: 阿里云百炼 (Paraformer / Qwen)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📄 许可证
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License
