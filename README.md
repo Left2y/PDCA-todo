@@ -1,4 +1,4 @@
-# PDCA Todo V1 - 语音生成今日清单
+# PDCA Todo v1.5 - 语音生成今日清单
 
 一款基于 **Next.js 14+** 和 **SQLite** 的全栈 PDCA 个人效率助理。通过语音输入，自动利用大模型（LLM）生成结构化的每日计划。
 
@@ -6,9 +6,12 @@
 
 - 🎙️ **语音驱动**：集成阿里百炼 ASR（Paraformer-Realtime）服务，支持长达 5 分钟的高质量语音转写。
 - 🤖 **智能规划**：结合 LLM（通义千问）自动将口语描述转化为标准的 PDCA 任务卡（Must/Should 结构）。
+- 🗑️ **卡片管理**：支持删除不需要的卡片，保持清单整洁。
+- 🌓 **深色模式**：自动适配系统亮/暗模式，夜间使用更护眼。
 - 📂 **本地存储**：后端采用 SQLite 数据库存储，支持跨设备同步（配合 NAS 部署），数据完全由用户掌控。
 - 📱 **PWA 支持**：完善的移动端适配（iOS 兼容），支持添加到主屏幕（A2HS），提供原生应用般的流畅体验。
-- 🛠️ **全栈架构**：使用 Next.js App Router，响应速度快，部署简单。
+- 🔧 **部署优化**：新增“清除应用缓存”功能（设置页），一键解决部署更新后的显示问题。
+- 🛠️ **全栈架构**：使用 Next.js App Router (Stable)，采用 Standalone 模式构建，NAS 部署更稳定。
 
 ## 🚀 快速开始
 
@@ -47,7 +50,7 @@ docker-compose up -d
 
 ## 🛠️ 技术栈
 
-- **Frontend**: Next.js (App Router), TypeScript, Vanilla CSS
+- **Frontend**: Next.js 15 (Stable), React 19, TypeScript
 - **Backend**: Next.js API Routes
 - **Database**: SQLite (via `sql.js`)
 - **Validation**: Zod
