@@ -1,0 +1,77 @@
+.weekly-page {
+    padding: 1.5rem;
+    padding-bottom: 120px;
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--bg-page);
+    min-height: 100vh;
+}
+
+/* Header styles scoped to weekly-page */
+.weekly-page .modern-header {
+    padding: 0;
+    margin-bottom: 2.5rem;
+    margin-top: 1rem;
+}
+
+.weekly-page .header-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.weekly-page .day-name {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #8e8e93;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: -0.4rem;
+}
+
+.weekly-page .date-main {
+    display: flex;
+    flex-direction: column;
+    line-height: 0.85;
+}
+
+.weekly-page .date-number {
+    font-size: 4.5rem;
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    color: #1c1c1e;
+    margin: 0;
+}
+
+.weekly-page .month-name {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #1c1c1e;
+    opacity: 0.7;
+    margin-top: -0.25rem;
+    letter-spacing: -0.03em;
+}
+
+.coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    border: 1px dashed #d1d1d6;
+    margin-top: 2rem;
+}
+
+.empty-state {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.empty-hint {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}

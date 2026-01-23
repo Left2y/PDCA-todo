@@ -1,6 +1,6 @@
 // API 客户端 - 调用同域 API
 import logger from './logger';
-import type { DailyPlan, SessionLog } from '@/types/plan';
+import type { DailyPlan, WeeklyPlan, SessionLog } from '@/types/plan';
 
 const MODULE = 'ApiClient';
 
@@ -121,6 +121,67 @@ export async function importData(data: unknown): Promise<{ imported: boolean }> 
         const error = await response.text();
         logger.error(MODULE, '导入失败', { error });
         throw new Error(`导入失败: ${response.status}`);
+    }
+
+    return response.json();
+}
+
+// 保存周日志
+export async function saveWeeklyLogs(data: {
+    weekStart: string;
+    transcript: string;
+    weeklyPlan: WeeklyPlan;
+}): Promise<{ id: string; saved: boolean }> {
+    logger.info(MODULE, '保存周会话日志', { weekStart: data.weekStart });
+
+    const response = await fetch('/api/weekly-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        const error = await response.text();
+        logger.error(MODULE, '保存周日志失败', { error });
+        throw new Error(`保存失败: ${response.status}`);
+    }
+
+    return response.json();
+}
+
+// 获取某周的日志
+export async function getWeeklyLogs(weekStart: string): Promise<{
+    weekStart: string;
+    weeklyPlan: WeeklyPlan | null;
+    logs: SessionLog[];
+}> {
+    logger.info(MODULE, '获取周日志', { weekStart });
+
+    const response = await fetch(`/api/weekly-logs?weekStart=${weekStart}`);
+
+    if (!response.ok) {
+        const error = await response.text();
+        logger.error(MODULE, '获取周日志失败', { error });
+        throw new Error(`获取失败: ${response.status}`);
+    }
+
+    return response.json();
+}
+
+// 获取某周的计划
+export async function getWeeklyPlan(weekStart: string): Promise<WeeklyPlan | null> {
+    logger.info(MODULE, '获取周计划', { weekStart });
+
+    const response = await fetch(`/api/weekly-plans/${weekStart}`);
+
+    if (response.status === 404) {
+        return null;
+    }
+
+    if (!response.ok) {
+        const error = await response.text();
+        logger.error(MODULE, '获取周计划失败', { error });
+        throw new Error(`获取失败: ${response.status}`);
     }
 
     return response.json();

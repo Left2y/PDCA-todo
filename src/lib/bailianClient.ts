@@ -2,9 +2,12 @@
 'use client';
 
 import logger from './logger';
-import type { AppSettings, DailyPlan } from '@/types/plan';
-import { SYSTEM_PROMPT, STRICT_SYSTEM_PROMPT, buildUserPrompt, buildRetryPrompt } from './prompt';
-import { parseAndValidatePlan } from './validate';
+import type { AppSettings, DailyPlan, WeeklyPlan } from '@/types/plan';
+import {
+    SYSTEM_PROMPT, STRICT_SYSTEM_PROMPT, WEEKLY_SYSTEM_PROMPT,
+    buildUserPrompt, buildRetryPrompt, buildWeeklyUserPrompt
+} from './prompt';
+import { parseAndValidatePlan, parseAndValidateWeeklyPlan } from './validate';
 
 const MODULE = 'BailianClient';
 
@@ -15,9 +18,9 @@ export interface TranscribeResult {
     rawResponse?: unknown;
 }
 
-export interface GeneratePlanResult {
+export interface GeneratePlanResult<T = DailyPlan | WeeklyPlan> {
     success: boolean;
-    plan?: DailyPlan;
+    plan?: T;
     rawResponse?: string;
     error?: string;
     validationErrors?: string[];
@@ -252,6 +255,66 @@ class BailianClient {
                 success: false,
                 error: errorMsg,
             };
+        }
+    }
+
+    // LLM 生成周计划
+    async generateWeeklyPlan(transcript: string, weekStart: string, retry = false): Promise<GeneratePlanResult<WeeklyPlan>> {
+        logger.info(MODULE, '开始生成周计划', {
+            transcriptLength: transcript.length,
+            weekStart,
+            isRetry: retry,
+        });
+
+        try {
+            this.checkSettings();
+
+            const systemPrompt = WEEKLY_SYSTEM_PROMPT;
+            const userPrompt = buildWeeklyUserPrompt(transcript, weekStart);
+
+            const requestBody = {
+                model: this.settings!.llmModel,
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userPrompt },
+                ],
+                temperature: 0.3,
+            };
+
+            const response = await fetch(`${this.settings!.baseUrl}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.settings!.apiKey}`,
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                return { success: false, error: `LLM 请求失败: ${response.status}`, rawResponse: errorText };
+            }
+
+            const data = await response.json();
+            const content = data.choices?.[0]?.message?.content;
+
+            if (!content) return { success: false, error: 'LLM 响应中无内容' };
+
+            const validation = parseAndValidateWeeklyPlan(content);
+
+            if (validation.success && validation.data) {
+                return { success: true, plan: validation.data as WeeklyPlan, rawResponse: content };
+            }
+
+            return {
+                success: false,
+                error: '生成的周计划格式不符合要求',
+                validationErrors: validation.errors,
+                rawResponse: content,
+            };
+        } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : '未知错误';
+            return { success: false, error: errorMsg };
         }
     }
 

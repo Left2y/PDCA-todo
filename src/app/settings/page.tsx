@@ -133,12 +133,21 @@ export default function SettingsPage() {
 
             {message && (
                 <div className={`message ${message.includes('❌') ? 'error' : 'success'}`}>
-                    {message}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.5rem' }}>
+                        {message.includes('❌') ? <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></> : <polyline points="20 6 9 17 4 12" />}
+                    </svg>
+                    <span>{message.replace(/[✅❌]/g, '').trim()}</span>
                 </div>
             )}
 
             <section className="settings-section">
-                <h2 className="section-title">🔑 API 配置</h2>
+                <h2 className="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.75rem', verticalAlign: 'middle' }}>
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    API 配置
+                </h2>
 
                 <div className="form-group">
                     <label>API Key</label>
@@ -186,7 +195,12 @@ export default function SettingsPage() {
             </section>
 
             <section className="settings-section">
-                <h2 className="section-title">📦 数据管理</h2>
+                <h2 className="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.75rem', verticalAlign: 'middle' }}>
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    </svg>
+                    数据管理
+                </h2>
 
                 <div className="btn-group">
                     <button className="btn-secondary" onClick={handleExport}>
@@ -212,7 +226,12 @@ export default function SettingsPage() {
             </section>
 
             <section className="settings-section">
-                <h2 className="section-title">🔧 调试</h2>
+                <h2 className="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.75rem', verticalAlign: 'middle' }}>
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                    </svg>
+                    调试
+                </h2>
                 <button className="btn-secondary" onClick={handleExportLogs}>
                     导出调试日志
                 </button>

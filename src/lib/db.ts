@@ -3,7 +3,7 @@ import initSqlJs, { Database } from 'sql.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const DB_PATH = process.env.DATABASE_PATH || '/data/app.db';
+const DB_PATH = process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db');
 
 let db: Database | null = null;
 
@@ -11,58 +11,109 @@ let db: Database | null = null;
 export async function getDb(): Promise<Database> {
     if (db) return db;
 
-    const SQL = await initSqlJs();
+    try {
+        console.log(`[DB] Initializing database. Current CWD: ${process.cwd()}`);
+        console.log(`[DB] Target DB Path: ${DB_PATH}`);
 
-    // 检查数据库文件是否存在
-    const dbDir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dbDir)) {
-        fs.mkdirSync(dbDir, { recursive: true });
+        // For Node.js/Next.js server-side, we need to locate the WASM file
+        const SQL = await initSqlJs({
+            locateFile: (file: string) => {
+                // In Node.js, the wasm file should be in node_modules/sql.js/dist
+                return path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', file);
+            }
+        });
+
+        // 检查数据库文件是否存在
+        const dbDir = path.dirname(DB_PATH);
+        if (!fs.existsSync(dbDir)) {
+            console.log(`[DB] Creating database directory: ${dbDir}`);
+            fs.mkdirSync(dbDir, { recursive: true });
+        }
+
+        if (fs.existsSync(DB_PATH)) {
+            console.log(`[DB] Loading existing database from: ${DB_PATH}`);
+            const buffer = fs.readFileSync(DB_PATH);
+            db = new SQL.Database(buffer);
+        } else {
+            console.log(`[DB] Creating new database instance`);
+            db = new SQL.Database();
+        }
+
+        // 创建表 (包含所有最新字段)
+        db.run(`
+            CREATE TABLE IF NOT EXISTS logs (
+                id TEXT PRIMARY KEY,
+                date TEXT NOT NULL,
+                transcript TEXT,
+                dailyPlanJson TEXT,
+                cardsJson TEXT,
+                createdAt TEXT NOT NULL
+            )
+        `);
+
+        // 迁移：如果表已存在但没有新字段，尝试添加 (忽略已存在的错误)
+        try {
+            db.run("ALTER TABLE logs ADD COLUMN cardsJson TEXT;");
+            console.log("[DB] Migration: Added cardsJson to logs table");
+        } catch (e) {
+            // 字段可能已存在
+        }
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS daily_plans (
+                date TEXT PRIMARY KEY,
+                json TEXT NOT NULL,
+                updatedAt TEXT NOT NULL
+            )
+        `);
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS weekly_plans (
+                weekStart TEXT PRIMARY KEY,
+                json TEXT NOT NULL,
+                updatedAt TEXT NOT NULL
+            )
+        `);
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS weekly_logs (
+                id TEXT PRIMARY KEY,
+                weekStart TEXT NOT NULL,
+                transcript TEXT,
+                weeklyPlanJson TEXT,
+                createdAt TEXT NOT NULL
+            )
+        `);
+
+        db.run(`
+            CREATE INDEX IF NOT EXISTS idx_logs_date ON logs(date)
+        `);
+
+        db.run(`
+            CREATE INDEX IF NOT EXISTS idx_weekly_logs_date ON weekly_logs(weekStart)
+        `);
+
+        // 保存数据库
+        saveDb();
+
+        return db;
+    } catch (error) {
+        console.error('Failed to initialize database:', error);
+        throw error;
     }
-
-    if (fs.existsSync(DB_PATH)) {
-        const buffer = fs.readFileSync(DB_PATH);
-        db = new SQL.Database(buffer);
-    } else {
-        db = new SQL.Database();
-    }
-
-    // 创建表
-    db.run(`
-        CREATE TABLE IF NOT EXISTS logs (
-            id TEXT PRIMARY KEY,
-            date TEXT NOT NULL,
-            transcript TEXT,
-            dailyPlanJson TEXT,
-            cardsJson TEXT,
-            createdAt TEXT NOT NULL
-        )
-    `);
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS daily_plans (
-            date TEXT PRIMARY KEY,
-            json TEXT NOT NULL,
-            updatedAt TEXT NOT NULL
-        )
-    `);
-
-    db.run(`
-        CREATE INDEX IF NOT EXISTS idx_logs_date ON logs(date)
-    `);
-
-    // 保存数据库
-    saveDb();
-
-    return db;
 }
 
 // 保存数据库到文件
 export function saveDb(): void {
     if (!db) return;
 
-    const data = db.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_PATH, buffer);
+    try {
+        const data = db.export();
+        const buffer = Buffer.from(data);
+        fs.writeFileSync(DB_PATH, buffer);
+    } catch (error) {
+        console.error('Failed to save database:', error);
+    }
 }
 
 // 获取某日的计划
@@ -83,14 +134,49 @@ export async function getDailyPlan(date: string): Promise<unknown | null> {
 
 // 保存或更新计划
 export async function saveDailyPlan(date: string, plan: unknown): Promise<void> {
+    try {
+        const database = await getDb();
+        const json = JSON.stringify(plan);
+        const now = new Date().toISOString();
+
+        database.run(`
+            INSERT OR REPLACE INTO daily_plans (date, json, updatedAt)
+            VALUES (?, ?, ?)
+        `, [date, json, now]);
+
+        saveDb();
+    } catch (error) {
+        console.error(`[DB] Error in saveDailyPlan for date ${date}:`, error);
+        throw error;
+    }
+}
+
+// 获取某周的计划
+export async function getWeeklyPlan(weekStart: string): Promise<any | null> {
+    const database = await getDb();
+    const result = database.exec(`SELECT json FROM weekly_plans WHERE weekStart = ?`, [weekStart]);
+
+    if (result.length === 0 || result[0].values.length === 0) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(result[0].values[0][0] as string);
+    } catch {
+        return null;
+    }
+}
+
+// 保存或更新周计划
+export async function saveWeeklyPlan(weekStart: string, plan: any): Promise<void> {
     const database = await getDb();
     const json = JSON.stringify(plan);
     const now = new Date().toISOString();
 
     database.run(`
-        INSERT OR REPLACE INTO daily_plans (date, json, updatedAt)
+        INSERT OR REPLACE INTO weekly_plans (weekStart, json, updatedAt)
         VALUES (?, ?, ?)
-    `, [date, json, now]);
+    `, [weekStart, json, now]);
 
     saveDb();
 }
@@ -103,25 +189,33 @@ export async function saveLog(log: {
     dailyPlan: unknown;
     cards?: unknown[];
 }): Promise<void> {
-    const database = await getDb();
-    const now = new Date().toISOString();
+    try {
+        const database = await getDb();
+        const now = new Date().toISOString();
 
-    database.run(`
-        INSERT INTO logs (id, date, transcript, dailyPlanJson, cardsJson, createdAt)
-        VALUES (?, ?, ?, ?, ?, ?)
-    `, [
-        log.id,
-        log.date,
-        log.transcript,
-        JSON.stringify(log.dailyPlan),
-        JSON.stringify(log.cards || []),
-        now,
-    ]);
+        console.log(`[DB] Attempting to save log for ${log.date}. ID: ${log.id}`);
 
-    // 同时更新 daily_plans
-    await saveDailyPlan(log.date, log.dailyPlan);
+        database.run(`
+            INSERT INTO logs (id, date, transcript, dailyPlanJson, cardsJson, createdAt)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [
+            log.id,
+            log.date,
+            log.transcript,
+            JSON.stringify(log.dailyPlan),
+            JSON.stringify(log.cards || []),
+            now,
+        ]);
 
-    saveDb();
+        // 同时更新 daily_plans
+        await saveDailyPlan(log.date, log.dailyPlan);
+
+        saveDb();
+        console.log(`[DB] Log saved successfully for ${log.date}`);
+    } catch (error) {
+        console.error(`[DB] Error in saveLog for date ${log.date}:`, error);
+        throw error;
+    }
 }
 
 // 获取某日的日志
@@ -146,6 +240,57 @@ export async function getLogsByDate(date: string): Promise<{
     const dailyPlan = await getDailyPlan(date);
 
     return { logs, dailyPlan };
+}
+
+// 保存周日志
+export async function saveWeeklyLog(log: {
+    id: string;
+    weekStart: string;
+    transcript: string;
+    weeklyPlan: unknown;
+}): Promise<void> {
+    const database = await getDb();
+    const now = new Date().toISOString();
+
+    database.run(`
+        INSERT INTO weekly_logs (id, weekStart, transcript, weeklyPlanJson, createdAt)
+        VALUES (?, ?, ?, ?, ?)
+    `, [
+        log.id,
+        log.weekStart,
+        log.transcript,
+        JSON.stringify(log.weeklyPlan),
+        now,
+    ]);
+
+    // 同时更新 weekly_plans
+    await saveWeeklyPlan(log.weekStart, log.weeklyPlan);
+
+    saveDb();
+}
+
+// 获取某周的日志
+export async function getWeeklyLogsByWeek(weekStart: string): Promise<{
+    logs: { id: string; transcript: string; createdAt: string }[];
+    weeklyPlan: unknown | null;
+}> {
+    const database = await getDb();
+
+    const logsResult = database.exec(`
+        SELECT id, transcript, createdAt FROM weekly_logs WHERE weekStart = ? ORDER BY createdAt DESC
+    `, [weekStart]);
+
+    const logs = logsResult.length > 0
+        ? logsResult[0].values.map(row => ({
+            id: row[0] as string,
+            transcript: row[1] as string,
+            createdAt: row[2] as string,
+        }))
+        : [];
+
+    const weeklyPlan = await getWeeklyPlan(weekStart);
+
+    return { logs, weeklyPlan };
 }
 
 // 更新任务状态

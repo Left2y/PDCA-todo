@@ -28,6 +28,7 @@ const OneAdjustmentSchema = z.object({
 
 // DailyPlan Schema - 包含硬规则验证
 export const DailyPlanSchema = z.object({
+    title: z.string().optional(), // 新增事项标题
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式必须为 YYYY-MM-DD'),
     must: z.array(TaskSchema).max(3, 'Must 任务不能超过 3 个'),
     should: z.array(TaskSchema).max(5, 'Should 任务不能超过 5 个'),
@@ -36,48 +37,54 @@ export const DailyPlanSchema = z.object({
     assumptions: z.array(z.string()).max(3, 'assumptions 不能超过 3 个'),
 });
 
-export interface ValidationResult {
+// WeeklyPlan Schema
+export const WeeklyPlanSchema = z.object({
+    weekStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式必须为 YYYY-MM-DD'),
+    goals: z.array(z.string()).max(3, '本周目标不能超过 3 个'),
+    must: z.array(TaskSchema).max(5, '本周核心任务不能超过 5 个'),
+    should: z.array(TaskSchema).max(8, '本周建议任务不能超过 8 个'),
+    feedback: z.string().optional(),
+    adjustments: z.string().optional(),
+    riskOfWeek: RiskOfDaySchema,
+    oneAdjustment: OneAdjustmentSchema,
+});
+
+export interface ValidationResult<T = DailyPlan | any> {
     success: boolean;
-    data?: DailyPlan;
+    data?: T;
     errors?: string[];
     rawInput?: string;
 }
 
 // 解析并验证 DailyPlan
-export function validateDailyPlan(input: unknown): ValidationResult {
+export function validateDailyPlan(input: unknown): ValidationResult<DailyPlan> {
     logger.info(MODULE, '开始验证 DailyPlan');
-    logger.debug(MODULE, '输入数据', { input });
-
     try {
         const result = DailyPlanSchema.safeParse(input);
-
         if (result.success) {
-            logger.info(MODULE, '验证通过', { date: result.data.date });
-            return {
-                success: true,
-                data: result.data as DailyPlan,
-            };
+            return { success: true, data: result.data as DailyPlan };
         } else {
-            const errors = result.error.issues.map(issue => {
-                const path = issue.path.join('.');
-                return `${path}: ${issue.message}`;
-            });
-
-            logger.warn(MODULE, '验证失败', { errors });
-            return {
-                success: false,
-                errors,
-                rawInput: JSON.stringify(input),
-            };
+            const errors = result.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`);
+            return { success: false, errors, rawInput: JSON.stringify(input) };
         }
-    } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : '未知验证错误';
-        logger.error(MODULE, '验证异常', { error: errorMsg });
-        return {
-            success: false,
-            errors: [errorMsg],
-            rawInput: typeof input === 'string' ? input : JSON.stringify(input),
-        };
+    } catch (error: any) {
+        return { success: false, errors: [error.message], rawInput: JSON.stringify(input) };
+    }
+}
+
+// 解析并验证 WeeklyPlan
+export function validateWeeklyPlan(input: unknown): ValidationResult<any> {
+    logger.info(MODULE, '开始验证 WeeklyPlan');
+    try {
+        const result = WeeklyPlanSchema.safeParse(input);
+        if (result.success) {
+            return { success: true, data: result.data };
+        } else {
+            const errors = result.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`);
+            return { success: false, errors, rawInput: JSON.stringify(input) };
+        }
+    } catch (error: any) {
+        return { success: false, errors: [error.message], rawInput: JSON.stringify(input) };
     }
 }
 
@@ -122,12 +129,10 @@ export function extractJsonFromResponse(response: string): unknown | null {
     return null;
 }
 
-// 完整的验证流程
-export function parseAndValidatePlan(response: string): ValidationResult {
+// 完整的验证流程 (Daily)
+export function parseAndValidatePlan(response: string): ValidationResult<DailyPlan> {
     logger.info(MODULE, '开始解析并验证计划');
-
     const jsonData = extractJsonFromResponse(response);
-
     if (jsonData === null) {
         return {
             success: false,
@@ -135,6 +140,19 @@ export function parseAndValidatePlan(response: string): ValidationResult {
             rawInput: response,
         };
     }
-
     return validateDailyPlan(jsonData);
+}
+
+// 完整的验证流程 (Weekly)
+export function parseAndValidateWeeklyPlan(response: string): ValidationResult<any> {
+    logger.info(MODULE, '开始解析并验证周计划');
+    const jsonData = extractJsonFromResponse(response);
+    if (jsonData === null) {
+        return {
+            success: false,
+            errors: ['无法从 LLM 响应中提取有效的 JSON'],
+            rawInput: response,
+        };
+    }
+    return validateWeeklyPlan(jsonData);
 }

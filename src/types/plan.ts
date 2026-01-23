@@ -23,12 +23,41 @@ export interface OneAdjustment {
 
 // 日计划 - LLM 输出的核心结构
 export interface DailyPlan {
+    title?: string;                  // 事项标题
     date: string;                    // YYYY-MM-DD
     must: Task[];                    // Must ≤ 3
     should: Task[];                  // Should ≤ 5
     riskOfDay: RiskOfDay;
     oneAdjustment: OneAdjustment;
     assumptions: string[];           // assumptions ≤ 3
+}
+
+// 事项卡 - 每一个录音生成一个独立的事项卡
+export interface IssueCard {
+    id: string;
+    title: string;          // AI 提取的事项标题
+    createdAt: string;      // 创建时间
+    plan: DailyPlan;        // 该事项的 PDCA 拆解
+}
+
+// 每日事项卡集合
+export interface DailyCards {
+    date: string;           // YYYY-MM-DD
+    cards: IssueCard[];
+}
+
+// 处理状态
+
+// 周计划
+export interface WeeklyPlan {
+    weekStart: string;              // YYYY-MM-DD (Monday)
+    goals: string[];                // 本周目标
+    must: Task[];                   // 本周必须完成
+    should: Task[];                 // 本周建议完成
+    feedback?: string;              // 执行反馈
+    adjustments?: string;           // 目标修正
+    riskOfWeek: RiskOfDay;
+    oneAdjustment: OneAdjustment;
 }
 
 // 会话日志

@@ -1,132 +1,126 @@
 .settings-page {
-    padding: 1rem;
+    padding: 1.5rem;
     max-width: 600px;
     margin: 0 auto;
     padding-bottom: 6rem;
+    background: var(--bg-page);
+    min-height: 100vh;
 }
 
 .page-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 3rem;
 }
 
 .page-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1f2937;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-black);
+    letter-spacing: -0.04em;
     margin: 0;
 }
 
-.message {
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-}
-
-.message.success {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
-
-.message.error {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-}
-
 .settings-section {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .section-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #374151;
-    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-black);
+    margin: 0 0 2rem;
 }
 
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-group label {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #4b5563;
-    margin-bottom: 0.375rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-black);
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
 }
 
 .form-group input {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-size: 0.9rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-page);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
     box-sizing: border-box;
+    color: var(--color-black);
+    transition: all 0.2s;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--color-black);
+    background: #fff;
 }
 
 .btn-primary {
     width: 100%;
-    padding: 0.875rem;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
+    margin-top: 1rem;
+    padding: 1.25rem;
+    background: var(--color-black);
+    color: #fff;
     border: none;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: 2rem;
+    font-size: 1.1rem;
+    font-weight: 800;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
 .btn-group {
     display: flex;
-    gap: 0.75rem;
+    gap: 1rem;
     flex-wrap: wrap;
+    margin-top: 1rem;
 }
 
 .btn-secondary {
     flex: 1;
-    padding: 0.75rem;
-    background: white;
-    color: #4b5563;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
+    padding: 1.125rem;
+    background: var(--color-white);
+    color: var(--color-black);
+    border: 1px solid #e5e5e7;
+    border-radius: 2rem;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
-    min-width: fit-content;
+    transition: all 0.2s;
 }
 
 .btn-danger {
     flex: 1;
-    padding: 0.75rem;
-    background: white;
-    color: #dc2626;
+    padding: 1.125rem;
+    background: #fff;
+    color: var(--error);
     border: 1px solid #fecaca;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
+    border-radius: 2rem;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
 }
 
-.btn-danger:hover {
-    background: rgba(239, 68, 68, 0.05);
-}
-
 .hint {
-    font-size: 0.75rem;
-    color: #9ca3af;
-    margin: 0.75rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 1.25rem 0 0;
+    padding-left: 0.5rem;
+    line-height: 1.5;
+    font-weight: 500;
 }

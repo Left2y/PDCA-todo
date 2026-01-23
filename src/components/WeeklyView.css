@@ -1,0 +1,87 @@
+.weekly-view-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.weekly-section {
+    background: var(--color-white);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.weekly-goals-list {
+    margin: 1rem 0 0 1.5rem;
+    padding: 0;
+    list-style-type: none;
+}
+
+.weekly-goals-list li {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-black);
+    margin-bottom: 0.75rem;
+    position: relative;
+}
+
+.weekly-goals-list li::before {
+    content: "🎯";
+    position: absolute;
+    left: -1.75rem;
+    font-size: 0.9rem;
+}
+
+.reflection-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 600px) {
+    .reflection-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.reflection-card {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+}
+
+.feedback-card {
+    background: #f0f7ff;
+    border-left: 4px solid #007aff;
+}
+
+.adjustments-card {
+    background: #fff9f0;
+    border-left: 4px solid #ff9500;
+}
+
+.reflection-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.weekly-tasks-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.task-type-must {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.task-type-should {
+    background: #fef3c7;
+    color: #92400e;
+}

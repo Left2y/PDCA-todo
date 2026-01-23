@@ -27,9 +27,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ id, saved: true });
     } catch (error) {
-        console.error('Error saving log:', error);
+        console.error('Error in /api/logs POST:', error);
         return NextResponse.json(
-            { error: 'Failed to save log' },
+            { error: 'Failed to save log', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }
@@ -56,9 +56,9 @@ export async function GET(request: NextRequest) {
             cards: [], // TODO: implement cards
         });
     } catch (error) {
-        console.error('Error getting logs:', error);
+        console.error('Error in /api/logs GET:', error);
         return NextResponse.json(
-            { error: 'Failed to get logs' },
+            { error: 'Failed to get logs', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }
