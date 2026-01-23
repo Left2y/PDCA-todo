@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import RecorderButton from '@/components/RecorderButton';
 import { IssueCard } from '@/components/IssueCard';
 import type { DailyPlan, IssueCard as IssueCardType, ProcessingState, AppSettings } from '@/types/plan';
+import { DEFAULT_SETTINGS } from '@/types/plan';
 import * as apiClient from '@/lib/apiClient';
 import bailianClient from '@/lib/bailianClient';
 import logger from '@/lib/logger';
@@ -41,10 +42,13 @@ export default function TodayPage() {
         message: '',
     });
 
-    const { dayName, dateStr } = getFormattedDate();
+    const [dateInfo, setDateInfo] = useState({ dayName: '', dateStr: '' });
 
     // 加载数据
     useEffect(() => {
+        // 设置日期（仅在客户端运行，防止水合错误）
+        setDateInfo(getFormattedDate());
+
         const loadData = async () => {
             const settings = getSettings();
             if (settings.apiKey) bailianClient.updateSettings(settings);
@@ -172,9 +176,9 @@ export default function TodayPage() {
             <header className="page-header modern-header">
                 <div className="header-top">
                     <div className="header-left">
-                        <span className="day-name">{dayName}</span>
+                        <span className="day-name">{dateInfo.dayName}</span>
                         <div className="date-main">
-                            <h1 className="page-title date-number">{dateStr}</h1>
+                            <h1 className="page-title date-number">{dateInfo.dateStr}</h1>
                         </div>
                     </div>
                 </div>
@@ -236,7 +240,16 @@ export default function TodayPage() {
 
 // 辅助函数 (保持不变或微调)
 function getToday(): string { return new Date().toISOString().split('T')[0]; }
-function getSettings(): AppSettings { /* ... */ return JSON.parse(localStorage.getItem('pdca-settings') || '{}'); }
+function getSettings(): AppSettings {
+    if (typeof window === 'undefined') return DEFAULT_SETTINGS;
+    const saved = localStorage.getItem('pdca-settings');
+    if (saved) {
+        try {
+            return JSON.parse(saved);
+        } catch { /* ignore */ }
+    }
+    return DEFAULT_SETTINGS;
+}
 function getFormattedDate(d: Date = new Date()) {
     const dayName = d.toLocaleDateString('zh-CN', { weekday: 'long' });
     const day = d.getDate().toString().padStart(2, '0');

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { RecorderButton } from '@/components/RecorderButton';
 import WeeklyView from '@/components/WeeklyView';
 import type { WeeklyPlan, ProcessingState, AppSettings } from '@/types/plan';
+import { DEFAULT_SETTINGS } from '@/types/plan';
 import * as apiClient from '@/lib/apiClient';
 import bailianClient from '@/lib/bailianClient';
 import logger from '@/lib/logger';
@@ -20,28 +21,14 @@ function getWeekStart(): string {
 }
 
 function getSettings(): AppSettings {
-    if (typeof window === 'undefined') {
-        return {
-            apiKey: '',
-            baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-            asrModel: 'qwen3-asr-flash',
-            llmModel: 'qwen-plus',
-            saveAudio: false,
-        };
-    }
+    if (typeof window === 'undefined') return DEFAULT_SETTINGS;
     const saved = localStorage.getItem('pdca-settings');
     if (saved) {
         try {
             return JSON.parse(saved);
         } catch { /* ignore */ }
     }
-    return {
-        apiKey: '',
-        baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-        asrModel: 'paraformer-realtime-v2',
-        llmModel: 'qwen-plus',
-        saveAudio: false,
-    };
+    return DEFAULT_SETTINGS;
 }
 
 export default function WeeklyPage() {
@@ -54,9 +41,12 @@ export default function WeeklyPage() {
         message: '',
     });
 
-    const weekStart = getWeekStart();
+    const [weekStart, setWeekStart] = useState<string>('');
 
     useEffect(() => {
+        const ws = getWeekStart();
+        setWeekStart(ws);
+
         const loadData = async () => {
             const settings = getSettings();
             if (settings.apiKey) {
@@ -64,7 +54,7 @@ export default function WeeklyPage() {
             }
 
             try {
-                const existingPlan = await apiClient.getWeeklyPlan(weekStart);
+                const existingPlan = await apiClient.getWeeklyPlan(ws);
                 if (existingPlan) {
                     setPlan(existingPlan);
                 }
@@ -73,7 +63,7 @@ export default function WeeklyPage() {
             }
         };
         loadData();
-    }, [weekStart]);
+    }, []);
 
     const handleRecordingComplete = useCallback(async (blob: Blob) => {
         setTranscript('');
