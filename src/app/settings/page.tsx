@@ -125,6 +125,45 @@ export default function SettingsPage() {
         setMessage('✅ 调试日志已导出');
     };
 
+    const handleClearCache = async () => {
+        if (!confirm('确定要清除应用缓存并重新加载吗？这通常用于解决显示异常问题。')) {
+            return;
+        }
+
+        logger.info(MODULE, '用户请求清除缓存');
+        try {
+            // 1. 注销 Service Workers
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    await registration.unregister();
+                    logger.info(MODULE, 'Service Worker 已注销', { scope: registration.scope });
+                }
+            }
+
+            // 2. 清除 Cache Storage
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                for (const name of cacheNames) {
+                    await caches.delete(name);
+                    logger.info(MODULE, '缓存已删除', { name });
+                }
+            }
+
+            setMessage('✅ 缓存已清除，正在重新加载...');
+            logger.info(MODULE, '缓存清除完成，准备重载页面');
+
+            // 3. 强制硬重载
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+
+        } catch (error) {
+            logger.error(MODULE, '清除缓存失败', { error });
+            setMessage('❌ 清除缓存失败');
+        }
+    };
+
     return (
         <div className="settings-page">
             <header className="page-header">
@@ -230,12 +269,19 @@ export default function SettingsPage() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.75rem', verticalAlign: 'middle' }}>
                         <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
                     </svg>
-                    调试
+                    调试与维护
                 </h2>
-                <button className="btn-secondary" onClick={handleExportLogs}>
-                    导出调试日志
-                </button>
-                <p className="hint">调试日志包含应用运行时的详细信息，可用于排查问题。</p>
+                <div className="btn-group">
+                    <button className="btn-secondary" onClick={handleExportLogs}>
+                        导出调试日志
+                    </button>
+                    <button className="btn-warning" onClick={handleClearCache}>
+                        清除应用缓存
+                    </button>
+                </div>
+                <p className="hint">
+                    “清除应用缓存”将重置浏览器缓存并强制重新加载，可解决界面未更新或资源加载失败的问题。
+                </p>
             </section>
         </div>
     );
