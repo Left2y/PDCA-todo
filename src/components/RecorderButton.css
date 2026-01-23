@@ -155,3 +155,46 @@
     font-size: 0.9rem;
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
 }
+
+/* ======================================
+   DARK MODE STYLES
+   ====================================== */
+@media (prefers-color-scheme: dark) {
+    .recorder-container {
+        background: linear-gradient(to top, #0a0a0a 80%, rgba(10, 10, 10, 0));
+    }
+
+    .recorder-btn-start {
+        background: #f5f5f7;
+        color: #0a0a0a;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-settings-icon {
+        background: #2c2c2e;
+        color: #f5f5f7;
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .recorder-duration {
+        color: #f5f5f7;
+    }
+
+    .recorder-limit {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .recorder-btn-cancel {
+        background: #2c2c2e;
+        color: #f5f5f7;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .recorder-error {
+        background: #2c2c2e;
+        border-color: #ff6961;
+        color: #ff6961;
+        box-shadow: 0 4px 12px rgba(255, 105, 97, 0.2);
+    }
+}

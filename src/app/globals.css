@@ -25,12 +25,21 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #121212;
+    --background: #0a0a0a;
     --foreground: #f5f5f7;
-    --bg-page: #121212;
+    --bg-page: #0a0a0a;
     --color-black: #f5f5f7;
-    --color-white: #1e1e1e;
-    /* Maintain pastel colors but can subtly shift them if needed */
+    --color-white: #1c1c1e;
+    --text-secondary: #8e8e93;
+    --card-bg: #1c1c1e;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --separator: rgba(255, 255, 255, 0.06);
+
+    /* Pastel colors adjusted for dark mode readability */
+    --color-purple: #a89cd9;
+    --color-pink: #d9a1b8;
+    --color-teal: #8cc8d9;
+    --color-yellow: #d9b88a;
   }
 }
 

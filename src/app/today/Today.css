@@ -179,3 +179,64 @@
     font-weight: 700;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+
+/* ======================================
+   DARK MODE STYLES
+   ====================================== */
+@media (prefers-color-scheme: dark) {
+    .today-page {
+        background: #0a0a0a;
+    }
+
+    .today-page .day-name {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .today-page .date-number {
+        color: #f5f5f7;
+    }
+
+    .today-page .cards-count {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .status-toast {
+        background: rgba(45, 45, 48, 0.95);
+        color: #f5f5f7;
+    }
+
+    .transcript-section {
+        background: #1c1c1e;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .transcript-editor {
+        background: #2c2c2e;
+        color: #f5f5f7;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .transcript-text {
+        color: #f5f5f7;
+    }
+
+    .section-header h2 {
+        color: #f5f5f7;
+    }
+
+    .section-header button {
+        color: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-cancel {
+        background: #2c2c2e;
+        color: #f5f5f7;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-confirm {
+        background: #f5f5f7;
+        color: #0a0a0a;
+    }
+}
