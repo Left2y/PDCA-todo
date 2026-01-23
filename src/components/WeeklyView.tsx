@@ -75,8 +75,10 @@ export default function WeeklyView({ plan, onPlanUpdate }: WeeklyViewProps) {
         onPlanUpdate(newPlan);
     };
 
-    const mustDone = plan.must.filter(t => t.done).length;
-    const shouldDone = plan.should.filter(t => t.done).length;
+    const must = plan.must || [];
+    const should = plan.should || [];
+    const mustDone = must.filter(t => t.done).length;
+    const shouldDone = should.filter(t => t.done).length;
 
     return (
         <div className="weekly-view-container">
@@ -126,10 +128,10 @@ export default function WeeklyView({ plan, onPlanUpdate }: WeeklyViewProps) {
                 <section className="task-section">
                     <div className="section-header">
                         <h2 className="section-title">Must Do</h2>
-                        <span className="section-progress">{mustDone}/{plan.must.length}</span>
+                        <span className="section-progress">{mustDone}/{must.length}</span>
                     </div>
                     <div className="task-list">
-                        {plan.must.map(task => (
+                        {must.map(task => (
                             <TaskItem key={task.id} task={task} type="must" onToggle={handleTaskToggle} />
                         ))}
                     </div>
@@ -138,10 +140,10 @@ export default function WeeklyView({ plan, onPlanUpdate }: WeeklyViewProps) {
                 <section className="task-section">
                     <div className="section-header">
                         <h2 className="section-title">Should Do</h2>
-                        <span className="section-progress">{shouldDone}/{plan.should.length}</span>
+                        <span className="section-progress">{shouldDone}/{should.length}</span>
                     </div>
                     <div className="task-list">
-                        {plan.should.map(task => (
+                        {should.map(task => (
                             <TaskItem key={task.id} task={task} type="should" onToggle={handleTaskToggle} />
                         ))}
                     </div>

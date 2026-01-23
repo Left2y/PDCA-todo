@@ -71,13 +71,15 @@ export default function HistoryPage() {
     };
 
     const getCompletionStats = (plan: DailyPlan) => {
-        const mustDone = plan.must.filter(t => t.done).length;
-        const shouldDone = plan.should.filter(t => t.done).length;
+        const must = plan.must || [];
+        const should = plan.should || [];
+        const mustDone = must.filter(t => t.done).length;
+        const shouldDone = should.filter(t => t.done).length;
         return {
-            must: `${mustDone}/${plan.must.length}`,
-            should: `${shouldDone}/${plan.should.length}`,
+            must: `${mustDone}/${must.length}`,
+            should: `${shouldDone}/${should.length}`,
             total: mustDone + shouldDone,
-            totalTasks: plan.must.length + plan.should.length,
+            totalTasks: must.length + should.length,
         };
     };
 

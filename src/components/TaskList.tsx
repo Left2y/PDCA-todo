@@ -97,8 +97,10 @@ export function TaskList({ plan, onPlanUpdate, onTaskToggle }: TaskListProps) {
         onPlanUpdate(newPlan);
     };
 
-    const mustDone = plan.must.filter(t => t.done).length;
-    const shouldDone = plan.should.filter(t => t.done).length;
+    const must = plan.must || [];
+    const should = plan.should || [];
+    const mustDone = must.filter(t => t.done).length;
+    const shouldDone = should.filter(t => t.done).length;
 
     return (
         <div className="task-list-container">
