@@ -18,8 +18,22 @@ export async function getDb(): Promise<Database> {
         // For Node.js/Next.js server-side, we need to locate the WASM file
         const SQL = await initSqlJs({
             locateFile: (file: string) => {
-                // In Node.js, the wasm file should be in node_modules/sql.js/dist
-                return path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', file);
+                const possiblePaths = [
+                    path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', file),
+                    path.join(process.cwd(), '.next', 'standalone', 'node_modules', 'sql.js', 'dist', file),
+                    path.join(__dirname, '..', '..', 'node_modules', 'sql.js', 'dist', file),
+                    file // fallback to default
+                ];
+
+                for (const p of possiblePaths) {
+                    if (fs.existsSync(p)) {
+                        console.log(`[DB] Found WASM at: ${p}`);
+                        return p;
+                    }
+                }
+
+                console.warn(`[DB] WASM file not found in common paths, falling back to: ${file}`);
+                return file;
             }
         });
 
