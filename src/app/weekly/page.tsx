@@ -24,7 +24,7 @@ function getSettings(): AppSettings {
         return {
             apiKey: '',
             baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-            asrModel: 'paraformer-realtime-v2',
+            asrModel: 'qwen3-asr-flash',
             llmModel: 'qwen-plus',
             saveAudio: false,
         };

@@ -149,6 +149,24 @@ export default function TodayPage() {
         } catch (e) { logger.error(MODULE, '状态同步失败', e); }
     };
 
+    const handleCardDelete = async (cardId: string) => {
+        logger.info(MODULE, '删除卡片', { cardId });
+        const newCards = cards.filter(c => c.id !== cardId);
+        setCards(newCards);
+
+        // 同步到服务器
+        try {
+            await apiClient.saveLogs({
+                date: getToday(),
+                transcript: 'Delete card',
+                dailyPlan: newCards as any
+            });
+            logger.info(MODULE, '卡片删除成功');
+        } catch (e) {
+            logger.error(MODULE, '卡片删除同步失败', e);
+        }
+    };
+
     return (
         <div className="today-page">
             <header className="page-header modern-header">
@@ -170,6 +188,7 @@ export default function TodayPage() {
                         key={card.id}
                         card={card}
                         onTaskToggle={handleTaskToggle}
+                        onDelete={handleCardDelete}
                     />
                 ))}
             </div>

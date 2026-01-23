@@ -7,17 +7,25 @@ import './IssueCard.css';
 interface IssueCardProps {
     card: IssueCardType;
     onTaskToggle: (cardId: string, taskId: string, done: boolean) => void;
+    onDelete?: (cardId: string) => void;
 }
 
-export function IssueCard({ card, onTaskToggle }: IssueCardProps) {
+export function IssueCard({ card, onTaskToggle, onDelete }: IssueCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const allTasks = [...card.plan.must, ...card.plan.should];
+    const allTasks = [...(card.plan.must || []), ...(card.plan.should || [])];
     const doneTasks = allTasks.filter(t => t.done).length;
     const progress = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
     const isCompleted = allTasks.length > 0 && doneTasks === allTasks.length;
 
     const toggleExpand = () => setIsExpanded(!isExpanded);
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (window.confirm('确定要删除这张事项卡吗？此操作不可撤销。')) {
+            onDelete?.(card.id);
+        }
+    };
 
     return (
         <div className={`issue-card ${isExpanded ? 'expanded' : ''} ${isCompleted ? 'completed' : ''}`}>
@@ -45,7 +53,7 @@ export function IssueCard({ card, onTaskToggle }: IssueCardProps) {
             {isExpanded && (
                 <div className="card-content">
                     {/* Must Section */}
-                    {card.plan.must.length > 0 && (
+                    {(card.plan.must?.length || 0) > 0 && (
                         <div className="card-section">
                             <h4 className="section-label must">关键行动 (Must)</h4>
                             <div className="task-list">
@@ -61,7 +69,7 @@ export function IssueCard({ card, onTaskToggle }: IssueCardProps) {
                     )}
 
                     {/* Should Section */}
-                    {card.plan.should.length > 0 && (
+                    {(card.plan.should?.length || 0) > 0 && (
                         <div className="card-section">
                             <h4 className="section-label should">建议行动 (Should)</h4>
                             <div className="task-list">
@@ -80,13 +88,22 @@ export function IssueCard({ card, onTaskToggle }: IssueCardProps) {
                     <div className="card-info-grid">
                         <div className="info-item risk">
                             <h5>⚠️ 风险</h5>
-                            <p>{card.plan.riskOfDay.risk}</p>
+                            <p>{card.plan.riskOfDay?.risk || '无'}</p>
                         </div>
                         <div className="info-item adjustment">
                             <h5>💡 建议</h5>
-                            <p>{card.plan.oneAdjustment.suggestion}</p>
+                            <p>{card.plan.oneAdjustment?.suggestion || '无'}</p>
                         </div>
                     </div>
+
+                    {/* Delete Button */}
+                    {onDelete && (
+                        <div className="card-actions">
+                            <button className="btn-delete" onClick={handleDelete}>
+                                🗑️ 删除此卡片
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
