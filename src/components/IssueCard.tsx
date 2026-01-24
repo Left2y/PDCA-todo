@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import type { IssueCard as IssueCardType, Task } from '@/types/plan';
 import './IssueCard.css';
 
@@ -15,116 +15,144 @@ export function IssueCard({ card, onTaskToggle, onDelete }: IssueCardProps) {
 
     const allTasks = [...(card.plan.must || []), ...(card.plan.should || [])];
     const doneTasks = allTasks.filter(t => t.done).length;
-    const progress = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
-    const isCompleted = allTasks.length > 0 && doneTasks === allTasks.length;
+    const isActive = doneTasks < allTasks.length && allTasks.length > 0;
 
-    const toggleExpand = () => setIsExpanded(!isExpanded);
+    // Formatting ID for display (e.g. "SAMPLE 001")
+    const displayId = card.id.slice(-3).toUpperCase().padStart(3, '0');
 
-    const handleDelete = (e: React.MouseEvent) => {
+    const [isDeleteMode, setIsDeleteMode] = useState(false);
+
+    // Handle delete with immediate confirmation sequence
+    const handleToggleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (window.confirm('确定要删除这张事项卡吗？此操作不可撤销。')) {
-            onDelete?.(card.id);
-        }
+        // Trigger mode change -> useEffect will handle the confirm dialog
+        setIsDeleteMode(true);
     };
 
+    React.useEffect(() => {
+        if (isDeleteMode) {
+            // Determine if we should delete or revert based on user confirmation
+            // Small timeout ensures the UI paints the "DELETE" state before blocking
+            const timer = setTimeout(() => {
+                const isConfirmed = window.confirm('TERMINATE THIS SEQUENCE? \n(This will remove it from YOUR LIST)');
+                if (isConfirmed) {
+                    onDelete?.(card.id);
+                } else {
+                    setIsDeleteMode(false);
+                }
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [isDeleteMode, card.id, onDelete]);
+
     return (
-        <div className={`issue-card ${isExpanded ? 'expanded' : ''} ${isCompleted ? 'completed' : ''}`}>
-            <div className="card-header" onClick={toggleExpand}>
-                <div className="header-main">
-                    <h3 className="card-title">{card.title || '未命名事项'}</h3>
-                    <div className="card-meta">
-                        <div className="meta-item">
-                            <span className="card-time">{new Date(card.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                            <span className="meta-label">CREATED</span>
-                        </div>
-                        <div className="meta-item">
-                            <div className="card-progress">
-                                <span className="progress-text">{doneTasks}/{allTasks.length}</span>
-                            </div>
-                            <span className="meta-label">PROGRESS</span>
-                        </div>
+        <div className={`te-card-module ${isExpanded ? 'expanded' : ''} ${isDeleteMode ? 'delete-mode' : ''}`}>
+            <div className="te-card-header" onClick={() => setIsExpanded(!isExpanded)}>
+                <div className="te-header-top">
+                    <div className="te-header-left">
+                        {/* Pad Indicator LED */}
+                        <div className={`te-pad-led ${isActive && !isDeleteMode ? 'active' : ''} ${isDeleteMode ? 'warn' : ''}`}></div>
+                        <span className="te-label-spec">SAMPLE {displayId}</span>
+                    </div>
+
+                    <div className="te-header-right">
+                        <span
+                            className={`te-label-spec status-tag ${isDeleteMode ? 'delete' : 'active-tag'}`}
+                            onClick={handleToggleDelete}
+                        >
+                            {isDeleteMode ? 'DELETE' : (isActive ? 'ACTIVE' : 'IDLE')}
+                        </span>
                     </div>
                 </div>
-                <div className={`card-toggle ${isExpanded ? 'expanded' : ''}`}>
-                    <span className="toggle-inner"></span>
+
+                <div className="te-pad-content">
+                    {/* The "Tactile Pad" Checkbox */}
+                    <div className="te-main-pad-area">
+                        <div className={`te-pad-button ${isExpanded ? 'active-expanded' : ''} ${doneTasks === allTasks.length ? 'done' : ''}`}>
+                            <div className="pad-inner"></div>
+                        </div>
+                        <h3 className="te-card-title">{card.title || 'VOID SEQUENCE'}</h3>
+
+                        {/* Decorative Linear Icon */}
+                        <div className="te-card-icon-deco">
+                            {card.title?.includes('设计') || card.title?.includes('改版') ? (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                                </svg>
+                            ) : card.title?.includes('对接') || card.title?.includes('会议') ? (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                            ) : (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                    <line x1="8" y1="21" x2="16" y2="21" />
+                                    <line x1="12" y1="17" x2="12" y2="21" />
+                                </svg>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {isExpanded && (
-                <div className="card-content">
-                    {/* Must Section */}
-                    {(card.plan.must?.length || 0) > 0 && (
-                        <div className="card-section">
-                            <h4 className="section-label must">关键行动 (Must)</h4>
-                            <div className="task-list">
-                                {card.plan.must.map(task => (
-                                    <TaskRow
-                                        key={task.id}
-                                        task={task}
-                                        onToggle={(done) => onTaskToggle(card.id, task.id, done)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
+            <div className={`te-card-body-wrapper ${isExpanded ? 'active' : ''}`}>
+                <div className="te-card-body">
+                    {/* Channel A (MUST) */}
+                    <HardwareSection
+                        label="CH. A"
+                        title="MUST"
+                        tasks={card.plan.must || []}
+                        cardId={card.id}
+                        onToggle={onTaskToggle}
+                    />
 
-                    {/* Should Section */}
-                    {(card.plan.should?.length || 0) > 0 && (
-                        <div className="card-section">
-                            <h4 className="section-label should">建议行动 (Should)</h4>
-                            <div className="task-list">
-                                {card.plan.should.map(task => (
-                                    <TaskRow
-                                        key={task.id}
-                                        task={task}
-                                        onToggle={(done) => onTaskToggle(card.id, task.id, done)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    {/* Channel B (SHOULD) */}
+                    <HardwareSection
+                        label="CH. B"
+                        title="SHOULD"
+                        tasks={card.plan.should || []}
+                        cardId={card.id}
+                        onToggle={onTaskToggle}
+                    />
 
-                    {/* Risk & Adjustment */}
-                    <div className="card-info-grid">
-                        <div className="info-item risk">
-                            <h5>⚠️ 风险</h5>
-                            <p>{card.plan.riskOfDay?.risk || '无'}</p>
+                    {/* Technical Grid Overlay */}
+                    <div className="te-tech-grid">
+                        <div className="tech-cell">
+                            <span className="cell-label">RISK</span>
+                            <span className="cell-value">{card.plan.riskOfDay?.risk || '-'}</span>
                         </div>
-                        <div className="info-item adjustment">
-                            <h5>💡 建议</h5>
-                            <p>{card.plan.oneAdjustment?.suggestion || '无'}</p>
+                        <div className="tech-cell">
+                            <span className="cell-label">ADJ</span>
+                            <span className="cell-value">{card.plan.oneAdjustment?.suggestion || '-'}</span>
                         </div>
                     </div>
-
-                    {/* Delete Button */}
-                    {onDelete && (
-                        <div className="card-actions">
-                            <button className="btn-delete" onClick={handleDelete}>
-                                🗑️ 删除此卡片
-                            </button>
-                        </div>
-                    )}
                 </div>
-            )}
+            </div>
         </div>
     );
 }
 
-function TaskRow({ task, onToggle }: { task: Task; onToggle: (done: boolean) => void }) {
+function HardwareSection({ label, title, tasks, cardId, onToggle }: any) {
+    if (tasks.length === 0) return null;
     return (
-        <label className={`task-row ${task.done ? 'done' : ''}`}>
-            <input
-                type="checkbox"
-                checked={task.done}
-                onChange={(e) => onToggle(e.target.checked)}
-            />
-            <div className="custom-checkbox">
-                <div className="check-icon"></div>
+        <div className="te-hw-section">
+            <div className="te-section-header">
+                <span className="te-section-label">{label}</span>
+                <span className="te-section-title">[{title}]</span>
+                <div className="te-connection-line"></div>
             </div>
-            <div className="task-info">
-                <span className="task-text">{task.text}</span>
-                <span className="task-estimate">⏱️ {task.estimateMin}min</span>
+            <div className="te-task-stack">
+                {tasks.map((task: any) => (
+                    <div key={task.id} className={`te-hw-task ${task.done ? 'done' : ''}`} onClick={() => onToggle(cardId, task.id, !task.done)}>
+                        <div className="te-mini-led"></div>
+                        <span className="te-hw-task-text">{task.text}</span>
+                        <span className="te-hw-task-meta">{task.estimateMin}M</span>
+                    </div>
+                ))}
             </div>
-        </label>
+        </div>
     );
 }

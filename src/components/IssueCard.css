@@ -1,515 +1,341 @@
-.issue-card {
-    background: #f2f2f7;
-    /* Default fallback */
-    border-radius: 28px;
-    margin-bottom: 1.25rem;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    border: none;
+/* IssueCard.css - Industrial Hardware Aesthetic */
+.te-card-module {
+    background: #e8e8e8;
+    border: 1px solid #c0c0c0;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    /* Reduced from 24px */
+    padding: 8px;
+    /* Reduced from 12px */
+    box-shadow:
+        2px 2px 5px rgba(0, 0, 0, 0.1),
+        inset 1px 1px 0px #fff;
     position: relative;
-}
-
-/* 动态给不同的卡片分配 Bento 色彩 */
-.issue-card:nth-child(4n+1) {
-    background: #f7e1b8;
-}
-
-/* 米色 */
-.issue-card:nth-child(4n+2) {
-    background: #cbd5e1;
-}
-
-/* 蓝灰 */
-.issue-card:nth-child(4n+3) {
-    background: #e2e8f0;
-}
-
-/* 浅灰 */
-.issue-card:nth-child(4n) {
-    background: #ffedd5;
-}
-
-/* 浅橙 */
-
-.issue-card.expanded {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transform: scale(1.01);
-}
-
-.issue-card.completed {
-    background: #dcfce7 !important;
-}
-
-.card-header {
-    padding: 1.5rem 1.5rem 0.75rem;
-    /* Reduced bottom padding to shift meta down */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
-    min-height: 180px;
-}
-
-.header-main {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    /* Expand to fill available height */
-    justify-content: space-between;
-}
-
-.card-title {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 950;
-    color: #1c1c1e;
-    line-height: 1.1;
-    /* Slightly tighter for multi-line */
-    letter-spacing: -0.05em;
-    max-width: 85%;
-    white-space: nowrap;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.issue-card.expanded .card-title {
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-
-.card-meta {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: auto;
-    padding-bottom: 0.25rem;
-    /* Move closer to bottom while keeping safety */
-}
-
-.meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-}
-
-.meta-item:last-child {
-    align-items: flex-end;
-    /* Right align progress section */
-}
-
-.card-time {
-    font-size: 1.4rem;
-    font-weight: 850;
-    color: #1c1c1e;
-    line-height: 1;
-}
-
-.card-progress {
-    background: rgba(255, 255, 255, 0.4);
-    padding: 0.4rem 0.8rem;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    backdrop-filter: blur(5px);
-    width: fit-content;
-}
-
-.progress-text {
-    font-size: 1rem;
-    font-weight: 900;
-    color: #1c1c1e;
-    line-height: 1;
-}
-
-.meta-label {
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: #1c1c1e;
-    opacity: 0.4;
-    letter-spacing: 0.05em;
-}
-
-.card-toggle {
-    position: absolute;
-    right: 1.5rem;
-    top: 1.8rem;
-    /* Align with title top */
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.3;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.toggle-inner {
-    position: relative;
-    width: 14px;
-    height: 2px;
-    background: #1c1c1e;
-    border-radius: 2px;
-}
-
-.toggle-inner::after {
+.te-card-module::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 14px;
-    height: 2px;
-    background: #1c1c1e;
-    border-radius: 2px;
-    transform: rotate(90deg);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ccc 2px, transparent 2px);
+    background-size: 4px 100%;
+    opacity: 0.3;
 }
 
-.card-toggle.expanded {
-    opacity: 0.8;
-    transform: rotate(180deg);
+.te-pad-led {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #555;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
 }
 
-.card-toggle.expanded .toggle-inner::after {
-    transform: rotate(0deg);
+.te-pad-led.active {
+    background: #ff6b00;
+    /* 使用统一橙色 */
+    box-shadow: 0 0 8px #ff6b00, inset 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
-.card-content {
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(10px);
-    padding: 1.5rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    animation: slideDown 0.3s ease-out;
+.te-pad-led.warn {
+    background: #ff3b3b;
+    /* 红色警告 */
+    box-shadow: 0 0 8px #ff3b3b, inset 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
-@keyframes slideDown {
+.te-card-header {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Reduced from 12px */
+}
+
+.te-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    /* Increased padding and added vertical space */
+}
+
+.te-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.te-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Slightly tighter gap */
+}
+
+.te-label-spec {
+    font-size: 10px;
+    font-weight: 900;
+    color: #666;
+    letter-spacing: 0.5px;
+    font-family: var(--font-main);
+    line-height: 1;
+}
+
+.status-tag {
+    padding: 3px 8px;
+    /* Slightly larger targets */
+    border-radius: 4px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+}
+
+.status-tag:active {
+    transform: scale(0.95);
+    filter: brightness(0.9);
+}
+
+.status-tag.active-tag {
+    color: #ff6b00;
+    background: rgba(255, 107, 0, 0.1);
+    border-color: rgba(255, 107, 0, 0.2);
+}
+
+.status-tag.active-tag:hover {
+    background: rgba(255, 107, 0, 0.15);
+}
+
+.status-tag.delete {
+    color: #fff;
+    background: #000;
+    text-decoration: underline;
+    animation: flash 1.5s infinite alternate;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes flash {
     from {
-        opacity: 0;
-        transform: translateY(-10px);
+        opacity: 1;
     }
 
     to {
-        opacity: 1;
-        transform: translateY(0);
+        opacity: 0.6;
     }
 }
 
-.card-section {
-    margin-top: 1.5rem;
-    padding-top: 0.5rem;
-}
-
-.card-section+.card-section {
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-}
-
-.section-label {
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #8e8e93;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.section-label.must {
-    color: #ff3b30;
-}
-
-.section-label.should {
-    color: #ff9500;
-}
-
-.task-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
-
-.task-row {
-    background: transparent;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.task-row:last-child {
-    border-bottom: none;
-}
-
-.task-row:hover {
-    opacity: 0.8;
-}
-
-.task-row.done {
-    opacity: 0.6;
-}
-
-.task-row input[type="checkbox"] {
-    display: none;
-}
-
-.custom-checkbox {
-    width: 22px;
-    height: 22px;
-    border: 2px solid rgba(0, 0, 0, 0.15);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    flex-shrink: 0;
-    background: transparent;
-}
-
-.task-row.done .custom-checkbox {
-    background: #1c1c1e;
-    border-color: #1c1c1e;
-}
-
-.check-icon {
-    width: 5px;
-    height: 9px;
-    border-right: 2px solid #fff;
-    border-bottom: 2px solid #fff;
-    transform: rotate(45deg) translate(-1px, -1px);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.task-row.done .check-icon {
-    opacity: 1;
-}
-
-.task-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.task-text {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1c1c1e;
-    transition: all 0.2s ease;
-}
-
-.task-row.done .task-text {
-    text-decoration: line-through;
-    opacity: 0.4;
-}
-
-.task-estimate {
-    background: rgba(0, 0, 0, 0.05);
-    padding: 2px 8px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-
-.done-badge {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #34c759;
-    background: #e1f7e7;
-    padding: 2px 6px;
+.te-pad-content {
+    background: #f0f0f0;
+    border: 1px solid #d0d0d0;
     border-radius: 4px;
+    padding: 6px 8px;
+    /* Reduced from 10px */
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.1),
+        0 1px 0 #fff;
 }
 
-.card-info-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.info-item {
-    background: transparent;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.info-item:last-child {
-    border-bottom: none;
-}
-
-.info-item h5 {
-    margin: 0 0 0.25rem 0;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #8e8e93;
-}
-
-.info-item p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #48484a;
-    line-height: 1.4;
-}
-
-/* Card Actions */
-.card-actions {
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+.te-main-pad-area {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    /* Reduced from 12px */
 }
 
-.btn-delete {
-    background: transparent;
-    border: 1px solid rgba(255, 59, 48, 0.3);
-    color: #ff3b30;
-    padding: 0.6rem 1.2rem;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
+.te-pad-button {
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 4px;
+    position: relative;
+    flex-shrink: 0;
     transition: all 0.2s ease;
 }
 
-.btn-delete:hover {
-    background: rgba(255, 59, 48, 0.1);
-    border-color: #ff3b30;
+.te-pad-button.active-expanded {
+    background: #ff6b00;
+    border-color: #ff6b00;
 }
 
-/* ======================================
-   DARK MODE STYLES
-   ====================================== */
-@media (prefers-color-scheme: dark) {
-    .issue-card {
-        background: #2c2c2e !important;
-    }
+.te-pad-button.done {
+    background: #4caf50;
+    /* 完成状态改为绿色，或者维持橙色？根据用户需求目前没提，先保持逻辑 */
+    border-color: #4caf50;
+}
 
-    .issue-card:nth-child(4n+1) {
-        background: #3d3526 !important;
-    }
+.te-pad-button .pad-inner {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 1px;
+}
 
-    .issue-card:nth-child(4n+2) {
-        background: #2a3340 !important;
-    }
+.te-pad-button.active-expanded .pad-inner {
+    background: rgba(255, 255, 255, 0.3);
+}
 
-    .issue-card:nth-child(4n+3) {
-        background: #2e3238 !important;
-    }
+.te-card-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    flex: 1;
+}
 
-    .issue-card:nth-child(4n) {
-        background: #3a2f26 !important;
-    }
+.te-card-icon-deco {
+    width: 24px;
+    height: 24px;
+    color: #999;
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .issue-card.completed {
-        background: #1a3326 !important;
-    }
+.te-card-icon-deco svg {
+    width: 100%;
+    height: 100%;
+}
 
-    .card-title {
-        color: #f5f5f7;
-    }
+.te-card-body-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-    .card-time {
-        color: #f5f5f7;
-    }
+.te-card-body-wrapper.active {
+    grid-template-rows: 1fr;
+    margin-top: 12px;
+    border-top: 1px dashed #ccc;
+}
 
-    .progress-text {
-        color: #f5f5f7;
-    }
+.te-card-body {
+    min-height: 0;
+    overflow: hidden;
+    padding-top: 12px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-    .meta-label {
-        color: rgba(255, 255, 255, 0.5);
-    }
+.te-card-body-wrapper.active .te-card-body {
+    opacity: 1;
+    transform: translateY(0);
+}
 
-    .toggle-inner,
-    .toggle-inner::after {
-        background: #f5f5f7;
-    }
+.te-hw-section {
+    margin-bottom: 10px;
+    /* Reduced from 16px */
+}
 
-    .card-content {
-        background: rgba(0, 0, 0, 0.3);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
+.te-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
 
-    .section-label {
-        color: rgba(255, 255, 255, 0.6);
-    }
+.te-section-label {
+    font-size: 9px;
+    font-weight: 900;
+    color: #444;
+}
 
-    .section-label.must {
-        color: #ff6961;
-    }
+.te-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #888;
+}
 
-    .section-label.should {
-        color: #ffb347;
-    }
+.te-connection-line {
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+}
 
-    .task-row {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
+.te-task-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    /* Reduced from 6px */
+}
 
-    .task-text {
-        color: #f5f5f7;
-    }
+.te-hw-task {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+}
 
-    .task-row.done .task-text {
-        color: rgba(255, 255, 255, 0.4);
-    }
+.te-hw-task.done {
+    opacity: 0.7;
+    background: #f9f9f9;
+}
 
-    .task-estimate {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
-    }
+.te-mini-led {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ccc;
+}
 
-    .custom-checkbox {
-        border-color: rgba(255, 255, 255, 0.3);
-    }
+.te-hw-task.done .te-mini-led {
+    background: #ff5722;
+    box-shadow: 0 0 4px #ff5722;
+}
 
-    .task-row.done .custom-checkbox {
-        background: #f5f5f7;
-        border-color: #f5f5f7;
-    }
+.te-hw-task-text {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+}
 
-    .check-icon {
-        border-right-color: #1c1c1e;
-        border-bottom-color: #1c1c1e;
-    }
+.te-hw-task-meta {
+    font-size: 10px;
+    color: #999;
+}
 
-    .card-info-grid {
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
+.te-tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #ddd;
+    border: 1px solid #ddd;
+    margin-top: 12px;
+}
 
-    .info-item {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
+.tech-cell {
+    background: #f5f5f5;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+}
 
-    .info-item h5 {
-        color: rgba(255, 255, 255, 0.5);
-    }
+.cell-label {
+    font-size: 8px;
+    font-weight: 900;
+    color: #999;
+}
 
-    .info-item p {
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .card-actions {
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .btn-delete {
-        border-color: rgba(255, 59, 48, 0.5);
-        color: #ff6961;
-    }
-
-    .btn-delete:hover {
-        background: rgba(255, 59, 48, 0.2);
-    }
+.cell-value {
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
 }

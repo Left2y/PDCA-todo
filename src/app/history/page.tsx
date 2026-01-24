@@ -1,20 +1,34 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { LCDDisplay } from '@/components/LCDDisplay';
 import type { DailyPlan } from '@/types/plan';
 import * as apiClient from '@/lib/apiClient';
 import logger from '@/lib/logger';
 import './History.css';
+import '@/app/today/Today.css'; // Reuse Today styles
 
 const MODULE = 'HistoryPage';
+
+function getFormattedDate(d: Date = new Date()) {
+    const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const dayName = days[d.getDay()];
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    return { dayName, dateStr: `${month}/${day}` };
+}
 
 export default function HistoryPage() {
     const [plans, setPlans] = useState<DailyPlan[]>([]);
     const [selectedPlan, setSelectedPlan] = useState<DailyPlan | null>(null);
     const [showRawJson, setShowRawJson] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [dateInfo, setDateInfo] = useState({ dayName: '', dateStr: '' });
 
     useEffect(() => {
+        setDateInfo(getFormattedDate());
+
         const loadPlans = async () => {
             logger.info(MODULE, '加载历史计划');
             setLoading(true);
@@ -102,130 +116,163 @@ export default function HistoryPage() {
         });
     };
 
-    if (loading) {
-        return (
-            <div className="history-page">
-                <div className="loading">加载中...</div>
-            </div>
-        );
-    }
-
     return (
-        <div className="history-page">
+        <div className="today-page">
             <header className="page-header">
-                <h1 className="page-title">历史记录</h1>
-                <div className="header-actions">
-                    <button className="btn-export" onClick={handleExportJson}>
-                        <svg className="btn-icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }}>
+                <div className="te-header-wrapper">
+                    <div className="te-nav-hardware">
+                        <Link href="/today" className="te-nav-btn">日计划 [TODAY]</Link>
+                        <Link href="/weekly" className="te-nav-btn">周计划 [WEEK]</Link>
+                        <Link href="/history" className="te-nav-btn active">历史 [LOGS]</Link>
+                        <Link href="/settings" className="te-nav-btn">设置 [SETTING]</Link>
+                    </div>
+
+                    <div className="te-lcd-section">
+                        <LCDDisplay
+                            value={dateInfo.dateStr}
+                            subValue={dateInfo.dayName}
+                            active={true}
+                        />
+                    </div>
+
+                    <div className="te-brand-row">
+                        <div className="te-brand-col">
+                            <h1 className="te-brand-title">HISTORY LOGS</h1>
+                        </div>
+                        <div className="te-brand-info">
+                            <div className="te-sync-hardware">
+                                <span className="te-sync-label">SYNC</span>
+                                <div className="te-sync-diagram">
+                                    <div className="node-top"></div>
+                                    <div className="conn-vertical"></div>
+                                    <div className="node-row">
+                                        <div className="node"></div>
+                                        <div className="node"></div>
+                                        <div className="node"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div className="cards-container" style={{ paddingBottom: '140px' }}>
+                <div className="te-side-labels-left">
+                    <div className="side-label-item">
+                        <span className="side-label-text">ARCHIVE</span>
+                        <div className="side-label-arrow-down"></div>
+                    </div>
+                </div>
+                <div className="te-side-labels-right">
+                    <div className="side-label-item">
+                        <span className="side-label-text">DATA</span>
+                    </div>
+                </div>
+
+                <div className="header-actions" style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <button className="btn-export" onClick={handleExportJson} style={{ padding: '8px 16px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', display: 'flex', alignItems: 'center', fontSize: '10px', textTransform: 'uppercase', fontWeight: 900 }}>
+                        <svg className="btn-icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '12px', height: '12px', marginRight: '6px' }}>
                             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
                             <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
                             <line x1="12" y1="22.08" x2="12" y2="12" />
                         </svg>
-                        导出 JSON
+                        EXPORT JSON
                     </button>
                 </div>
-            </header>
 
-            {plans.length === 0 ? (
-                <div className="empty-state">
-                    <svg className="empty-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '4rem', height: '4rem', color: '#ccc', marginBottom: '1rem' }}>
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                        <line x1="16" y1="2" x2="16" y2="6" />
-                        <line x1="8" y1="2" x2="8" y2="6" />
-                        <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                    <p>暂无历史记录</p>
-                    <p className="empty-hint">开始录音并生成计划后，这里会显示历史记录</p>
-                </div>
-            ) : (
-                <div className="history-list">
-                    {plans.map((plan) => {
-                        const stats = getCompletionStats(plan);
-                        return (
-                            <div
-                                key={plan.date}
-                                className={`history-item ${selectedPlan?.date === plan.date ? 'selected' : ''}`}
-                                onClick={() => setSelectedPlan(selectedPlan?.date === plan.date ? null : plan)}
-                            >
-                                <div className="item-header">
-                                    <span className="item-date">{formatDate(plan.date)}</span>
-                                    <span className="item-date-full">{plan.date}</span>
-                                </div>
+                {loading ? (
+                    <div className="loading" style={{ textAlign: 'center', padding: '40px', color: '#888', fontFamily: 'monospace' }}>LOADING_DATA...</div>
+                ) : plans.length === 0 ? (
+                    <div className="empty-state" style={{ textAlign: 'center', padding: '40px', border: '1px dashed #ccc', borderRadius: '8px', color: '#999' }}>
+                        <p style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>NO RECORDS FOUND</p>
+                    </div>
+                ) : (
+                    <div className="history-list">
+                        {plans.map((plan) => {
+                            const stats = getCompletionStats(plan);
+                            return (
+                                <div
+                                    key={plan.date}
+                                    className={`history-item ${selectedPlan?.date === plan.date ? 'selected' : ''}`}
+                                    onClick={() => setSelectedPlan(selectedPlan?.date === plan.date ? null : plan)}
+                                    style={{
+                                        background: '#e8e8e8',
+                                        border: '1px solid #c0c0c0',
+                                        borderRadius: '6px',
+                                        marginBottom: '12px',
+                                        padding: '12px',
+                                        boxShadow: '2px 2px 5px rgba(0,0,0,0.1), inset 1px 1px 0px #fff',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <div className="item-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderBottom: '1px solid #ccc', paddingBottom: '4px' }}>
+                                        <span className="item-date" style={{ fontFamily: 'var(--font-main)', fontWeight: 900, color: '#333' }}>{formatDate(plan.date)}</span>
+                                        <span className="item-date-full" style={{ fontFamily: 'monospace', color: '#888' }}>{plan.date}</span>
+                                    </div>
 
-                                <div className="item-stats">
-                                    <span className="stat must">Must: {stats.must}</span>
-                                    <span className="stat should">Should: {stats.should}</span>
-                                    <span className="stat-progress">
-                                        {Math.round((stats.total / stats.totalTasks) * 100) || 0}%
-                                    </span>
-                                </div>
+                                    <div className="item-stats" style={{ display: 'flex', gap: '12px', fontSize: '10px', color: '#666', fontFamily: 'monospace' }}>
+                                        <span className="stat must">MUST: {stats.must}</span>
+                                        <span className="stat should">SHOULD: {stats.should}</span>
+                                    </div>
 
-                                <div className="item-preview">
-                                    {plan.must.slice(0, 2).map(task => (
-                                        <span key={task.id} className={`preview-task ${task.done ? 'done' : ''}`}>
-                                            <svg className="preview-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ width: '1rem', height: '1rem', marginRight: '0.4rem', color: task.done ? 'var(--success)' : '#ccc' }}>
-                                                {task.done ? <polyline points="20 6 9 17 4 12" /> : <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />}
-                                            </svg>
-                                            {task.text.slice(0, 20)}...
-                                        </span>
-                                    ))}
-                                </div>
-
-                                {/* 展开详情 */}
-                                {selectedPlan?.date === plan.date && (
-                                    <div className="item-detail" onClick={(e) => e.stopPropagation()}>
-                                        <div className="detail-section">
-                                            <h3>Must 任务</h3>
-                                            <ul>
-                                                {plan.must.map(task => (
-                                                    <li key={task.id} className={task.done ? 'done' : ''}>
-                                                        {task.done ? '✅' : '⬜'} {task.text}
-                                                        <span className="task-time">（{task.estimateMin}分钟）</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-
-                                        {plan.should.length > 0 && (
-                                            <div className="detail-section">
-                                                <h3>Should 任务</h3>
-                                                <ul>
-                                                    {plan.should.map(task => (
-                                                        <li key={task.id} className={task.done ? 'done' : ''}>
-                                                            {task.done ? '✅' : '⬜'} {task.text}
-                                                            <span className="task-time">（{task.estimateMin}分钟）</span>
+                                    {/* 展开详情 */}
+                                    {selectedPlan?.date === plan.date && (
+                                        <div className="item-detail" onClick={(e) => e.stopPropagation()} style={{ marginTop: '12px', borderTop: '1px solid #ccc', paddingTop: '12px', fontSize: '12px' }}>
+                                            <div className="detail-section" style={{ marginBottom: '10px' }}>
+                                                <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>CH. A [MUST]</h3>
+                                                <ul style={{ listStyle: 'none', padding: 0 }}>
+                                                    {plan.must.map(task => (
+                                                        <li key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                                            <span style={{ color: task.done ? '#ff6b00' : '#ccc' }}>●</span>
+                                                            <span style={{ textDecoration: task.done ? 'line-through' : 'none', color: task.done ? '#888' : '#333' }}>{task.text}</span>
                                                         </li>
                                                     ))}
                                                 </ul>
                                             </div>
-                                        )}
 
-                                        <div className="detail-section">
-                                            <h3>风险 & 修正</h3>
-                                            <p><strong>风险：</strong>{plan.riskOfDay.risk}</p>
-                                            <p><strong>信号：</strong>{plan.riskOfDay.signal}</p>
-                                            <p><strong>修正：</strong>[{plan.oneAdjustment.type}] {plan.oneAdjustment.suggestion}</p>
+                                            <pre style={{ background: '#333', color: '#0f0', padding: '10px', borderRadius: '4px', fontSize: '10px', overflowX: 'auto', marginTop: '10px' }}>
+                                                {JSON.stringify(plan, null, 2)}
+                                            </pre>
                                         </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
 
-                                        <div className="detail-actions">
-                                            <button
-                                                className="btn-sm btn-secondary"
-                                                onClick={() => setShowRawJson(!showRawJson)}
-                                            >
-                                                {showRawJson ? '隐藏' : '查看'} JSON
-                                            </button>
-                                        </div>
-
-                                        {showRawJson && (
-                                            <pre className="raw-json">{JSON.stringify(plan, null, 2)}</pre>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+            <footer className="te-hardware-footer">
+                <div className="te-brand-stamp">
+                    <span>#E0E0E0</span>
+                    <strong>PLASTIC</strong>
                 </div>
-            )}
+
+                <div className="te-power-hardware">
+                    <span className="te-power-label">POWER</span>
+                    <div className="te-power-switch">
+                        <div className="switch-led"></div>
+                        <div className="switch-slider"></div>
+                    </div>
+                </div>
+
+                <div className="te-audio-labels">
+                    <div className="label-item">
+                        <span>AUDIO OUT</span>
+                        <div className="te-arrow-down-hardware"></div>
+                    </div>
+                    <div className="label-item">
+                        <span>HEADPHONE</span>
+                        <div className="te-icon-headphone-hardware">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+                                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

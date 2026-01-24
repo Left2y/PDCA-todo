@@ -1,0 +1,187 @@
+.te-lcd-bezel-outer {
+    background: #222;
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.6),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+    position: relative;
+    width: 100%;
+}
+
+/* Hardened Metal Screws */
+.lcd-screw {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 35% 35%, #888 0%, #333 100%);
+    border-radius: 50%;
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.3),
+        0 1px 3px rgba(0, 0, 0, 0.8);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Cross head detail */
+.lcd-screw::before,
+.lcd-screw::after {
+    content: '';
+    position: absolute;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 1px;
+}
+
+.lcd-screw::before {
+    width: 8px;
+    height: 1.5px;
+    transform: rotate(45deg);
+}
+
+.lcd-screw::after {
+    width: 1.5px;
+    height: 8px;
+    transform: rotate(45deg);
+}
+
+.ls-tl {
+    top: 6px;
+    left: 6px;
+}
+
+.ls-tr {
+    top: 6px;
+    right: 6px;
+}
+
+.ls-bl {
+    bottom: 6px;
+    left: 6px;
+}
+
+.ls-br {
+    bottom: 6px;
+    right: 6px;
+}
+
+.te-lcd-face-plate {
+    background: #0a0a0a;
+    border: 1px solid #000;
+    border-radius: 4px;
+    padding: 10px 14px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 140px;
+    overflow: hidden;
+}
+
+/* Stronger Glass Reflection */
+.te-lcd-face-plate::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 140%;
+    height: 100%;
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.12) 0%,
+            rgba(255, 255, 255, 0.05) 40%,
+            transparent 41%);
+    transform: rotate(-15deg);
+    pointer-events: none;
+    z-index: 20;
+}
+
+.te-matrix-screen {
+    flex: 1;
+    margin: 6px 0;
+    background: #050505;
+    border: 1px solid #1a1a1a;
+    border-radius: 2px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 1);
+}
+
+/* Background grid of inactive dots */
+.te-matrix-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle, #1a1a1a 20%, transparent 25%);
+    background-size: 6px 6px;
+    z-index: 1;
+    opacity: 0.8;
+}
+
+.te-matrix-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.dot-text-glow {
+    font-family: 'VT323', monospace;
+    font-size: 80px;
+    /* Increased font size */
+    color: #FF9800;
+    line-height: 1;
+    text-shadow:
+        0 0 10px rgba(255, 152, 0, 0.9),
+        0 0 20px rgba(255, 152, 0, 0.4);
+    letter-spacing: 2px;
+    /* Tightened to fit 01/25 SUN on one line */
+    filter: brightness(1.2);
+}
+
+/* Mask grid to create individual dot look */
+.te-matrix-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        linear-gradient(90deg, #050505 1.5px, transparent 1.5px),
+        linear-gradient(0deg, #050505 1.5px, transparent 1.5px);
+    background-size: 6px 6px;
+    z-index: 15;
+    pointer-events: none;
+}
+
+.lcd-label-top {
+    color: #666;
+    font-family: var(--font-main);
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.lcd-labels-bottom {
+    display: flex;
+    justify-content: space-between;
+    color: #555;
+    font-family: var(--font-main);
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}

@@ -1,242 +1,492 @@
+/* The Physical Device Chassis */
 .today-page {
-    padding: 2rem 0;
-    max-width: 600px;
-    margin: 0 auto;
-    background: #f4f4f6;
-    /* Modernist off-white */
-    min-height: 100vh;
+    width: 440px;
+    min-height: 860px;
+    background-color: #E5E5E5;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+    border-radius: 20px;
+    position: relative;
+    padding: 24px 20px 140px;
+    box-shadow:
+        inset 0 1px 0px rgba(255, 255, 255, 0.8),
+        inset 1px 0 0px rgba(255, 255, 255, 0.5),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.1),
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 0 1px #999;
 }
 
-.today-page .modern-header {
-    padding: 0 1.5rem;
-    margin-bottom: 3.5rem;
-    margin-top: 1rem;
+/* Screws in Corners of Body */
+.today-page::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 6px;
+    height: 6px;
+    background: #333;
+    border-radius: 50%;
+    box-shadow: 410px 0 #333, 410px 836px #333, 0 836px #333;
 }
 
-.today-page .header-top {
+/* Internal Navigation (Hardware Style) */
+.te-nav-hardware {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.te-nav-btn {
+    padding: 8px 16px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #666;
+    text-transform: uppercase;
+    text-decoration: none;
+    box-shadow:
+        2px 2px 5px #bebebe,
+        -2px -2px 5px #ffffff;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.te-nav-btn:hover {
+    color: #333;
+}
+
+.te-nav-btn.active {
+    background: #ff6b00;
+    /* 橙色 */
+    color: #fff;
+    /* 白色 */
+    box-shadow:
+        inset 2px 2px 5px #cc5600,
+        inset -2px -2px 5px #ff8000;
+}
+
+.te-lcd-section {
+    margin-bottom: 24px;
+}
+
+.te-brand-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
+    align-items: flex-end;
+    margin-bottom: 16px;
+    padding: 0;
+    /* 移除内边距，确保与容器边缘对齐 */
 }
 
-.today-page .day-name {
-    font-size: 0.95rem;
+.te-brand-title {
+    font-size: 32px;
     font-weight: 900;
-    color: #8e8e93;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: -0.4rem;
+    letter-spacing: -1.5px;
+    line-height: 0.9;
 }
 
-.today-page .date-main {
+.te-sync-hardware {
     display: flex;
     flex-direction: column;
-    line-height: 0.85;
+    align-items: flex-end;
+    gap: 2px;
 }
 
-.today-page .date-number {
-    font-size: 6.5rem;
-    font-weight: 950;
-    letter-spacing: -0.05em;
-    color: #1c1c1e;
-    margin: 0;
-}
-
-.today-page .cards-count {
-    font-size: 0.8rem;
+.te-sync-label {
+    font-size: 8px;
     font-weight: 900;
-    color: #8e8e93;
-    margin-bottom: 2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    opacity: 0.6;
+    color: #666;
+    letter-spacing: 0.5px;
 }
 
-/* Floating Status/Toasts */
-.status-toast {
-    position: fixed;
-    top: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    color: #fff;
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    z-index: 2000;
-    animation: toastSlideIn 0.3s ease-out;
+.te-sync-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 24px;
 }
 
-@keyframes toastSlideIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
+.node-top {
+    width: 6px;
+    height: 6px;
+    border: 1px solid #666;
+    background: #e0e0e0;
 }
 
-/* Floating Transcript UI */
-.floating-transcript {
-    position: fixed;
-    bottom: 2rem;
-    left: 1.5rem;
-    right: 1.5rem;
-    z-index: 1000;
-    animation: slideUp 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+.conn-vertical {
+    width: 1px;
+    height: 4px;
+    background: #666;
 }
 
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(100px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.node-row {
+    display: flex;
+    gap: 2px;
 }
 
-.transcript-box {
-    background: #fff;
-    border-radius: 24px;
-    padding: 1.5rem;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+.node {
+    width: 6px;
+    height: 6px;
+    border: 1px solid #666;
+    background: #e0e0e0;
 }
 
-.transcript-header {
+.te-divider-main {
+    height: 3px;
+    background: #000;
+    margin-bottom: 24px;
+}
+
+/* Footer Details */
+.te-hardware-footer {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    right: 24px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+    align-items: flex-end;
+    pointer-events: none;
 }
 
-.transcript-header span {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #8e8e93;
+.te-brand-stamp {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: #888;
+    line-height: 1;
+}
+
+.te-brand-stamp strong {
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    color: #666;
+}
+
+.te-audio-labels {
+    display: flex;
+    gap: 20px;
+}
+
+.label-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 8px;
+    font-weight: 800;
+    color: #888;
+    gap: 2px;
+}
+
+.arrow-down {
+    font-size: 8px;
+}
+
+/* Status Toast Overrides */
+.status-toast {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #111;
+    color: var(--color-orange);
+    border: 2px solid #333;
+    padding: 12px 24px;
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+}
+
+/* --- NEW DECORATIVE ELEMENTS --- */
+
+/* Technical Side Markers */
+.cards-container {
+    position: relative;
+    padding: 0 10px !important;
+    /* Reduced padding to widen cards */
+}
+
+.te-side-labels-left,
+.te-side-labels-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 60px 0;
+    pointer-events: none;
+}
+
+.te-side-labels-left {
+    left: -15px;
+    /* Shifted further left */
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.te-side-labels-right {
+    right: -15px;
+    /* Shifted further right */
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.side-label-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 7px;
+    font-weight: 900;
+    color: #aaa;
+    letter-spacing: 1px;
     text-transform: uppercase;
 }
 
-.transcript-header button {
-    background: #f2f2f7;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #007aff;
-}
-
-.transcript-box p {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.1rem;
-    line-height: 1.5;
-    color: var(--color-black);
-    font-weight: 500;
-}
-
-.transcript-box textarea {
-    width: 100%;
-    height: 120px;
-    border: 2px solid #007aff;
-    border-radius: 12px;
-    padding: 1rem;
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.transcript-btns {
+.side-label-item {
     display: flex;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
 }
 
-.btn-cancel {
-    background: #f2f2f7;
-    border: none;
+.side-label-arrow-down {
+    width: 1px;
+    height: 12px;
+    background: #ccc;
+    position: relative;
+    margin-top: 4px;
+}
+
+.side-label-arrow-down::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: -1.5px;
+    border-top: 3px solid #ccc;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+}
+
+/* V3 Signal Flow - Compressed Height & Internal Alignment */
+.te-signal-flow-v3 {
+    height: 32px;
+    margin: 4px 0 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    color: #444;
+}
+
+.te-signal-flow-v3.internal {
+    margin: 8px -12px 4px;
+    /* Move into card padding space */
+    width: calc(100% + 24px);
+    padding: 0 12px;
+}
+
+.v3-flow-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     flex: 1;
-    padding: 1rem;
-    border-radius: 16px;
-    font-weight: 700;
-    color: #48484a;
 }
 
-.btn-confirm {
-    background: var(--color-black);
-    color: #fff;
-    border: none;
-    flex: 2;
-    padding: 1rem;
-    border-radius: 16px;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.v3-labels-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 7px;
+    font-weight: 1000;
+    line-height: 1;
 }
 
-/* ======================================
-   DARK MODE STYLES
-   ====================================== */
-@media (prefers-color-scheme: dark) {
-    .today-page {
-        background: #0a0a0a;
-    }
+.v3-label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
 
-    .today-page .day-name {
-        color: rgba(255, 255, 255, 0.5);
-    }
+.v3-dot {
+    width: 2.5px;
+    height: 2.5px;
+    background: #000;
+    border-radius: 50%;
+}
 
-    .today-page .date-number {
-        color: #f5f5f7;
-    }
+.v3-main-line-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
 
-    .today-page .cards-count {
-        color: rgba(255, 255, 255, 0.4);
-    }
+.v3-line-horizontal {
+    flex: 1;
+    height: 1px;
+    background: #444;
+}
 
-    .status-toast {
-        background: rgba(45, 45, 48, 0.95);
-        color: #f5f5f7;
-    }
+.v3-anchor-hollow {
+    width: 6px;
+    height: 6px;
+    border: 1px solid #444;
+    border-radius: 50%;
+    background: #e5e5e5;
+    flex-shrink: 0;
+}
 
-    .transcript-section {
-        background: #1c1c1e;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
+.v3-main-line-container .v3-anchor-hollow {
+    margin-left: -1px;
+}
 
-    .transcript-editor {
-        background: #2c2c2e;
-        color: #f5f5f7;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
+.v3-flow-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
 
-    .transcript-text {
-        color: #f5f5f7;
-    }
+.v3-triangle-svg {
+    width: 14px;
+    height: 14px;
+    color: #444;
+}
 
-    .section-header h2 {
-        color: #f5f5f7;
-    }
+.v3-flow-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1.2;
+}
 
-    .section-header button {
-        color: rgba(255, 255, 255, 0.6);
-        background: rgba(255, 255, 255, 0.1);
-    }
+.v3-secondary-line-container {
+    display: flex;
+    align-items: center;
+}
 
-    .btn-cancel {
-        background: #2c2c2e;
-        color: #f5f5f7;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
+.v3-line-short {
+    width: 25px;
+    height: 1px;
+    background: #444;
+}
 
-    .btn-confirm {
-        background: #f5f5f7;
-        color: #0a0a0a;
-    }
+.v3-ch-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 7px;
+    font-weight: 1000;
+    line-height: 1;
+}
+
+.v3-waveform-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.v3-wave-svg {
+    width: 50px;
+    height: 14px;
+    color: #444;
+}
+
+.v3-triangle-svg.small {
+    width: 10px;
+    height: 10px;
+}
+
+/* Decorative Side Arches */
+.v3-arch-left,
+.v3-arch-right {
+    position: absolute;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #bbb;
+    pointer-events: none;
+}
+
+.v3-arch-left {
+    left: -4px;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 12px;
+}
+
+.v3-arch-right {
+    right: -4px;
+    border-left: none;
+    border-bottom: none;
+    border-top-right-radius: 12px;
+}
+
+.te-power-hardware {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-right: 40px;
+}
+
+.te-power-label {
+    font-size: 8px;
+    font-weight: 900;
+    color: #888;
+}
+
+.te-power-switch {
+    width: 32px;
+    height: 14px;
+    background: #333;
+    border-radius: 7px;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.switch-led {
+    position: absolute;
+    left: -10px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ffc107;
+    box-shadow: 0 0 4px #ffc107;
+}
+
+.switch-slider {
+    width: 16px;
+    height: 10px;
+    background: linear-gradient(#777, #444);
+    border-radius: 5px;
+    margin-left: auto;
+}
+
+.te-arrow-down-hardware {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #888;
+    margin-top: 2px;
+}
+
+.te-icon-headphone-hardware {
+    width: 14px;
+    height: 14px;
+    color: #888;
+}
+
+.te-icon-headphone-hardware svg {
+    width: 100%;
+    height: 100%;
 }
