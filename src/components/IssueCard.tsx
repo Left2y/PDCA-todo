@@ -22,29 +22,6 @@ export function IssueCard({ card, onTaskToggle, onDelete }: IssueCardProps) {
 
     const [isDeleteMode, setIsDeleteMode] = useState(false);
 
-    // Handle delete with immediate confirmation sequence
-    const handleToggleDelete = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        // Trigger mode change -> useEffect will handle the confirm dialog
-        setIsDeleteMode(true);
-    };
-
-    React.useEffect(() => {
-        if (isDeleteMode) {
-            // Determine if we should delete or revert based on user confirmation
-            // Small timeout ensures the UI paints the "DELETE" state before blocking
-            const timer = setTimeout(() => {
-                const isConfirmed = window.confirm('TERMINATE THIS SEQUENCE? \n(This will remove it from YOUR LIST)');
-                if (isConfirmed) {
-                    onDelete?.(card.id);
-                } else {
-                    setIsDeleteMode(false);
-                }
-            }, 50);
-            return () => clearTimeout(timer);
-        }
-    }, [isDeleteMode, card.id, onDelete]);
-
     return (
         <div className={`te-card-module ${isExpanded ? 'expanded' : ''} ${isDeleteMode ? 'delete-mode' : ''}`}>
             <div className="te-card-header" onClick={() => setIsExpanded(!isExpanded)}>
@@ -56,13 +33,43 @@ export function IssueCard({ card, onTaskToggle, onDelete }: IssueCardProps) {
                     </div>
 
                     <div className="te-header-right">
-                        <span
+                        {/* Delete icon - only shown in delete mode */}
+                        {isDeleteMode && (
+                            <button
+                                type="button"
+                                className="te-delete-icon-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    onDelete?.(card.id);
+                                    setIsDeleteMode(false);
+                                }}
+                                title="Confirm Delete"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        )}
+                        <button
+                            type="button"
                             className={`te-label-spec status-tag ${isDeleteMode ? 'delete' : 'active-tag'}`}
-                            onClick={handleToggleDelete}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                // Toggle delete mode
+                                setIsDeleteMode(!isDeleteMode);
+                            }}
                         >
                             {isDeleteMode ? 'DELETE' : (isActive ? 'ACTIVE' : 'IDLE')}
-                        </span>
+                        </button>
                     </div>
+
+
+
                 </div>
 
                 <div className="te-pad-content">

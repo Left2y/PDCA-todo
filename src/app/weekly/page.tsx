@@ -192,13 +192,6 @@ export default function WeeklyPage() {
                     </div>
                 </div>
 
-                {!plan && (
-                    <RecorderButton
-                        onRecordingComplete={handleRecordingComplete}
-                        disabled={processing.step === 'transcribing' || processing.step === 'generating'}
-                    />
-                )}
-
                 {processing.step !== 'idle' && (
                     <div className={`status-toast ${processing.step}`}>
                         <span className="blink-dot">●</span> {processing.message.toUpperCase()}
@@ -239,6 +232,23 @@ export default function WeeklyPage() {
                     </div>
                 )}
             </div>
+
+            {!plan && !transcript && (
+                <>
+                    <div className="te-recorder-markers" style={{ pointerEvents: 'none', position: 'absolute', bottom: '48px', right: '14px', width: '120px', height: '120px', zIndex: 5 }}>
+                        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
+                            <div key={deg} className="te-marker-dot" style={{ position: 'absolute', top: '50%', left: '50%', width: '4px', height: '4px', background: '#ccc', borderRadius: '50%', margin: '-2px', transform: `rotate(${deg}deg) translate(58px)` }}></div>
+                        ))}
+                        <span className="te-marker-label label-hold" style={{ position: 'absolute', left: '-10px', bottom: '25px', fontSize: '7px', fontWeight: 900, color: '#999' }}>HOLD</span>
+                        <span className="te-marker-label label-record" style={{ position: 'absolute', left: '-10px', top: '15px', fontSize: '7px', fontWeight: 900, color: '#999' }}>RECORD</span>
+                        <span className="te-marker-label label-filter" style={{ position: 'absolute', right: '0', top: '5px', fontSize: '7px', fontWeight: 900, color: '#999' }}>FILTER</span>
+                    </div>
+                    <RecorderButton
+                        onRecordingComplete={handleRecordingComplete}
+                        disabled={processing.step === 'transcribing' || processing.step === 'generating'}
+                    />
+                </>
+            )}
 
             <footer className="te-hardware-footer">
                 <div className="te-brand-stamp">

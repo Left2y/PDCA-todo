@@ -3,13 +3,19 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { LCDDisplay } from '@/components/LCDDisplay';
-import type { DailyPlan } from '@/types/plan';
+import { IssueCard } from '@/components/IssueCard';
+import type { IssueCard as IssueCardType } from '@/types/plan';
 import * as apiClient from '@/lib/apiClient';
 import logger from '@/lib/logger';
 import './History.css';
 import '@/app/today/Today.css'; // Reuse Today styles
 
 const MODULE = 'HistoryPage';
+
+interface DayGroup {
+    date: string;
+    cards: IssueCardType[];
+}
 
 function getFormattedDate(d: Date = new Date()) {
     const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -20,21 +26,21 @@ function getFormattedDate(d: Date = new Date()) {
 }
 
 export default function HistoryPage() {
-    const [plans, setPlans] = useState<DailyPlan[]>([]);
-    const [selectedPlan, setSelectedPlan] = useState<DailyPlan | null>(null);
-    const [showRawJson, setShowRawJson] = useState(false);
+    const [dayGroups, setDayGroups] = useState<DayGroup[]>([]);
     const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
     const [dateInfo, setDateInfo] = useState({ dayName: '', dateStr: '' });
 
     useEffect(() => {
+        setMounted(true);
         setDateInfo(getFormattedDate());
 
-        const loadPlans = async () => {
-            logger.info(MODULE, '加载历史计划');
+        const loadHistory = async () => {
+            logger.info(MODULE, '加载历史事项卡');
             setLoading(true);
 
             try {
-                // 获取最近30天的计划
+                // 获取最近30天的数据
                 const dates: string[] = [];
                 const today = new Date();
                 for (let i = 0; i < 30; i++) {
@@ -43,28 +49,30 @@ export default function HistoryPage() {
                     dates.push(date.toISOString().split('T')[0]);
                 }
 
-                const plansData: DailyPlan[] = [];
+                const groups: DayGroup[] = [];
                 for (const date of dates) {
                     try {
-                        const plan = await apiClient.getDailyPlan(date);
-                        if (plan) {
-                            plansData.push(plan);
+                        const response = await apiClient.getLogs(date);
+                        // dailyPlan 现在是 IssueCard[] 格式
+                        const cards = response.dailyPlan;
+                        if (cards && Array.isArray(cards) && cards.length > 0) {
+                            groups.push({ date, cards: cards as unknown as IssueCardType[] });
                         }
                     } catch {
-                        // 计划不存在，跳过
+                        // 日期无数据，跳过
                     }
                 }
 
-                logger.info(MODULE, '历史计划加载完成', { count: plansData.length });
-                setPlans(plansData);
+                logger.info(MODULE, '历史数据加载完成', { groupCount: groups.length });
+                setDayGroups(groups);
             } catch (error) {
-                logger.error(MODULE, '加载历史计划失败', { error });
+                logger.error(MODULE, '加载历史数据失败', { error });
             } finally {
                 setLoading(false);
             }
         };
 
-        loadPlans();
+        loadHistory();
     }, []);
 
     const handleExportJson = async () => {
@@ -84,36 +92,33 @@ export default function HistoryPage() {
         }
     };
 
-    const getCompletionStats = (plan: DailyPlan) => {
-        const must = plan.must || [];
-        const should = plan.should || [];
-        const mustDone = must.filter(t => t.done).length;
-        const shouldDone = should.filter(t => t.done).length;
-        return {
-            must: `${mustDone}/${must.length}`,
-            should: `${shouldDone}/${should.length}`,
-            total: mustDone + shouldDone,
-            totalTasks: must.length + should.length,
-        };
-    };
-
     const formatDate = (dateStr: string) => {
         const date = new Date(dateStr);
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
 
-        if (dateStr === today.toISOString().split('T')[0]) {
-            return '今天';
+        // Only show relative dates after client hydration to prevent mismatch
+        if (mounted) {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (dateStr === today.toISOString().split('T')[0]) {
+                return '今天';
+            }
+            if (dateStr === yesterday.toISOString().split('T')[0]) {
+                return '昨天';
+            }
         }
-        if (dateStr === yesterday.toISOString().split('T')[0]) {
-            return '昨天';
-        }
+
         return date.toLocaleDateString('zh-CN', {
             month: 'short',
             day: 'numeric',
             weekday: 'short',
         });
+    };
+
+    // 历史页面的任务状态切换为只读，不执行任何操作
+    const handleTaskToggle = () => {
+        // 历史记录为只读，不允许修改
     };
 
     return (
@@ -129,8 +134,8 @@ export default function HistoryPage() {
 
                     <div className="te-lcd-section">
                         <LCDDisplay
-                            value={dateInfo.dateStr}
-                            subValue={dateInfo.dayName}
+                            value={mounted ? dateInfo.dateStr : '--/--'}
+                            subValue={mounted ? dateInfo.dayName : '---'}
                             active={true}
                         />
                     </div>
@@ -183,62 +188,43 @@ export default function HistoryPage() {
 
                 {loading ? (
                     <div className="loading" style={{ textAlign: 'center', padding: '40px', color: '#888', fontFamily: 'monospace' }}>LOADING_DATA...</div>
-                ) : plans.length === 0 ? (
+                ) : dayGroups.length === 0 ? (
                     <div className="empty-state" style={{ textAlign: 'center', padding: '40px', border: '1px dashed #ccc', borderRadius: '8px', color: '#999' }}>
                         <p style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>NO RECORDS FOUND</p>
                     </div>
                 ) : (
                     <div className="history-list">
-                        {plans.map((plan) => {
-                            const stats = getCompletionStats(plan);
-                            return (
-                                <div
-                                    key={plan.date}
-                                    className={`history-item ${selectedPlan?.date === plan.date ? 'selected' : ''}`}
-                                    onClick={() => setSelectedPlan(selectedPlan?.date === plan.date ? null : plan)}
-                                    style={{
-                                        background: '#e8e8e8',
-                                        border: '1px solid #c0c0c0',
-                                        borderRadius: '6px',
-                                        marginBottom: '12px',
-                                        padding: '12px',
-                                        boxShadow: '2px 2px 5px rgba(0,0,0,0.1), inset 1px 1px 0px #fff',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    <div className="item-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderBottom: '1px solid #ccc', paddingBottom: '4px' }}>
-                                        <span className="item-date" style={{ fontFamily: 'var(--font-main)', fontWeight: 900, color: '#333' }}>{formatDate(plan.date)}</span>
-                                        <span className="item-date-full" style={{ fontFamily: 'monospace', color: '#888' }}>{plan.date}</span>
-                                    </div>
-
-                                    <div className="item-stats" style={{ display: 'flex', gap: '12px', fontSize: '10px', color: '#666', fontFamily: 'monospace' }}>
-                                        <span className="stat must">MUST: {stats.must}</span>
-                                        <span className="stat should">SHOULD: {stats.should}</span>
-                                    </div>
-
-                                    {/* 展开详情 */}
-                                    {selectedPlan?.date === plan.date && (
-                                        <div className="item-detail" onClick={(e) => e.stopPropagation()} style={{ marginTop: '12px', borderTop: '1px solid #ccc', paddingTop: '12px', fontSize: '12px' }}>
-                                            <div className="detail-section" style={{ marginBottom: '10px' }}>
-                                                <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>CH. A [MUST]</h3>
-                                                <ul style={{ listStyle: 'none', padding: 0 }}>
-                                                    {plan.must.map(task => (
-                                                        <li key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                                                            <span style={{ color: task.done ? '#ff6b00' : '#ccc' }}>●</span>
-                                                            <span style={{ textDecoration: task.done ? 'line-through' : 'none', color: task.done ? '#888' : '#333' }}>{task.text}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-
-                                            <pre style={{ background: '#333', color: '#0f0', padding: '10px', borderRadius: '4px', fontSize: '10px', overflowX: 'auto', marginTop: '10px' }}>
-                                                {JSON.stringify(plan, null, 2)}
-                                            </pre>
-                                        </div>
-                                    )}
+                        {dayGroups.map((group) => (
+                            <div key={group.date} className="history-day-group">
+                                {/* 日期标题 */}
+                                <div className="day-header" style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    padding: '8px 12px',
+                                    marginBottom: '12px',
+                                    background: 'linear-gradient(to right, #e0e0e0, transparent)',
+                                    borderLeft: '3px solid #ff6b00',
+                                    fontFamily: 'var(--font-main)',
+                                }}>
+                                    <span style={{ fontWeight: 900, color: '#333', fontSize: '14px' }}>
+                                        {formatDate(group.date)}
+                                    </span>
+                                    <span style={{ fontFamily: 'monospace', color: '#888', fontSize: '11px' }}>
+                                        {group.date} · {group.cards.length} ITEMS
+                                    </span>
                                 </div>
-                            );
-                        })}
+
+                                {/* 该日期下的所有卡片 */}
+                                {group.cards.map((card) => (
+                                    <IssueCard
+                                        key={card.id}
+                                        card={card}
+                                        onTaskToggle={handleTaskToggle}
+                                    />
+                                ))}
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>

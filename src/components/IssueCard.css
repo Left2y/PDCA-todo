@@ -60,9 +60,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 8px;
-    /* Increased padding and added vertical space */
+    padding: 2px 6px;
 }
+
 
 .te-header-left {
     display: flex;
@@ -87,14 +87,28 @@
 }
 
 .status-tag {
-    padding: 3px 8px;
-    /* Slightly larger targets */
+    padding: 3px 6px;
+    margin: 0;
     border-radius: 4px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     user-select: none;
-    border: 1px solid transparent;
+    border: none;
+    /* Button reset styles */
+    background: none;
+    font-family: var(--font-main);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    color: inherit;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
 }
+
 
 .status-tag:active {
     transform: scale(0.95);
@@ -103,13 +117,16 @@
 
 .status-tag.active-tag {
     color: #ff6b00;
-    background: rgba(255, 107, 0, 0.1);
-    border-color: rgba(255, 107, 0, 0.2);
+    background: rgba(255, 107, 0, 0.08);
+    /* Very light orange background */
 }
+
 
 .status-tag.active-tag:hover {
     background: rgba(255, 107, 0, 0.15);
 }
+
+
 
 .status-tag.delete {
     color: #fff;
@@ -128,6 +145,49 @@
         opacity: 0.6;
     }
 }
+
+/* Delete icon button */
+.te-delete-icon-btn {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    background: #ff3b3b;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    animation: pulse-delete 0.8s ease-in-out infinite alternate;
+}
+
+.te-delete-icon-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: #fff;
+}
+
+.te-delete-icon-btn:hover {
+    background: #ff0000;
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
+}
+
+.te-delete-icon-btn:active {
+    transform: scale(0.95);
+}
+
+@keyframes pulse-delete {
+    from {
+        box-shadow: 0 0 4px rgba(255, 59, 59, 0.3);
+    }
+
+    to {
+        box-shadow: 0 0 12px rgba(255, 59, 59, 0.8);
+    }
+}
+
 
 .te-pad-content {
     background: #f0f0f0;
