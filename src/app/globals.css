@@ -18,18 +18,22 @@ html,
 body {
   width: 100%;
   height: 100%;
+  scroll-padding-top: 280px;
+  /* Offset for sticky header (Nav+LCD) */
 }
 
 body {
   background: var(--background-world);
   color: #1a1a1a;
   font-family: var(--font-main);
-  /* Absolute Centering */
+  /* Flex layout for horizontal centering only */
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  /* Changed from center to prevent top clipping when content overflows */
   padding: 20px;
   overflow: auto;
+  min-height: 100%;
 
   /* Table Texture */
   background-image: radial-gradient(circle, #333 1px, transparent 1px);
@@ -39,9 +43,11 @@ body {
 main {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   min-height: 100%;
+  margin: auto 0;
+  /* Vertical centering via margin when content is shorter than viewport */
 }
 
 a {

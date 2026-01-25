@@ -12,6 +12,7 @@ export const SYSTEM_PROMPT = `你是滚动 PDCA 个人助理，帮助用户将�
 3. Must 任务 ≤ 3（针对该事项的拆解）
 4. Should 任务 ≤ 5
 5. 如果用户描述模糊，请将其拆解为 15-30 分钟的可启动任务
+6. **所有输出内容（标题、任务描述、建议等）必须使用中文（简体）**
 
 ## 输出 JSON 格式
 {
@@ -34,6 +35,7 @@ export const WEEKLY_SYSTEM_PROMPT = `你是滚动 PDCA 个人助理，帮助用�
 2. 本周目标 (goals) ≤ 3
 3. Must 任务 (针对全周的核心任务) ≤ 5
 4. Should 任务 ≤ 8
+5. **所有输出内容必须使用中文（简体）**
 
 ## 字段说明
 - weekStart: 周一的日期 (YYYY-MM-DD)

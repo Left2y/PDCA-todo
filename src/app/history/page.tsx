@@ -123,23 +123,26 @@ export default function HistoryPage() {
 
     return (
         <div className="today-page">
+            {/* Independent Sticky Navigation + LCD */}
+            <div className="sticky-nav-container">
+                <div className="te-nav-hardware">
+                    <Link href="/today" className="te-nav-btn">日计划 [TODAY]</Link>
+                    <Link href="/weekly" className="te-nav-btn">周计划 [WEEK]</Link>
+                    <Link href="/history" className="te-nav-btn active">历史 [LOGS]</Link>
+                    <Link href="/settings" className="te-nav-btn">设置 [SETTING]</Link>
+                </div>
+
+                <div className="te-lcd-section">
+                    <LCDDisplay
+                        value={mounted ? dateInfo.dateStr : '--/--'}
+                        subValue={mounted ? dateInfo.dayName : '---'}
+                        active={true}
+                    />
+                </div>
+            </div>
+
             <header className="page-header">
                 <div className="te-header-wrapper">
-                    <div className="te-nav-hardware">
-                        <Link href="/today" className="te-nav-btn">日计划 [TODAY]</Link>
-                        <Link href="/weekly" className="te-nav-btn">周计划 [WEEK]</Link>
-                        <Link href="/history" className="te-nav-btn active">历史 [LOGS]</Link>
-                        <Link href="/settings" className="te-nav-btn">设置 [SETTING]</Link>
-                    </div>
-
-                    <div className="te-lcd-section">
-                        <LCDDisplay
-                            value={mounted ? dateInfo.dateStr : '--/--'}
-                            subValue={mounted ? dateInfo.dayName : '---'}
-                            active={true}
-                        />
-                    </div>
-
                     <div className="te-brand-row">
                         <div className="te-brand-col">
                             <h1 className="te-brand-title">HISTORY LOGS</h1>
