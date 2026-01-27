@@ -5,17 +5,21 @@ import type { DailyPlan, WeeklyPlan, SessionLog } from '@/types/plan';
 const MODULE = 'ApiClient';
 
 // 保存会话日志
-export async function saveLogs(data: {
+export async function saveLogs(
+    data: {
     date: string;
     transcript: string;
     dailyPlan: DailyPlan;
-}): Promise<{ id: string; saved: boolean }> {
+    },
+    options?: { keepalive?: boolean }
+): Promise<{ id: string; saved: boolean }> {
     logger.info(MODULE, '保存会话日志', { date: data.date });
 
     const response = await fetch('/api/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        keepalive: options?.keepalive ?? false,
     });
 
     if (!response.ok) {
@@ -35,7 +39,7 @@ export async function getLogs(date: string): Promise<{
 }> {
     logger.info(MODULE, '获取日志', { date });
 
-    const response = await fetch(`/api/logs?date=${date}`);
+    const response = await fetch(`/api/logs?date=${date}`, { cache: 'no-store' });
 
     if (!response.ok) {
         const error = await response.text();

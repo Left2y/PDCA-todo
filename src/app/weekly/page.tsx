@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { RecorderButton } from '@/components/RecorderButton';
+import { IssueCard } from '@/components/IssueCard';
 import WeeklyView from '@/components/WeeklyView';
 import { LCDDisplay } from '@/components/LCDDisplay';
-import type { WeeklyPlan, ProcessingState, AppSettings } from '@/types/plan';
+import TranscriptModal from '@/components/TranscriptModal';
+import type { DailyPlan, WeeklyPlan, ProcessingState, AppSettings, IssueCard as IssueCardType, Task } from '@/types/plan';
 import { DEFAULT_SETTINGS } from '@/types/plan';
 import * as apiClient from '@/lib/apiClient';
 import bailianClient from '@/lib/bailianClient';
@@ -40,6 +42,25 @@ function getFormattedDate(d: Date = new Date()) {
     const day = d.getDate().toString().padStart(2, '0');
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
     return { dayName, dateStr: `${month}/${day}` };
+}
+
+function weeklyPlanToIssueCard(plan: WeeklyPlan): IssueCardType {
+    const dailyLikePlan: DailyPlan = {
+        title: `周计划 ${plan.weekStart}`,
+        date: plan.weekStart,
+        must: plan.must || [],
+        should: plan.should || [],
+        riskOfDay: plan.riskOfWeek,
+        oneAdjustment: plan.oneAdjustment,
+        assumptions: (plan.goals || []).slice(0, 3),
+    };
+
+    return {
+        id: `weekly-${plan.weekStart}`,
+        title: plan.goals?.[0] ? `WEEK: ${plan.goals[0]}` : `WEEKLY ${plan.weekStart}`,
+        createdAt: new Date().toISOString(),
+        plan: dailyLikePlan,
+    };
 }
 
 export default function WeeklyPage() {
@@ -101,6 +122,29 @@ export default function WeeklyPage() {
         setProcessing({ step: 'idle', message: '' });
     }, []);
 
+    const handleTaskToggle = useCallback(async (taskId: string, done: boolean) => {
+        if (!plan) return;
+
+        const updateTasks = (tasks: Task[]) => tasks.map(t => (t.id === taskId ? { ...t, done } : t));
+        const updatedPlan: WeeklyPlan = {
+            ...plan,
+            must: updateTasks(plan.must || []),
+            should: updateTasks(plan.should || []),
+        };
+
+        setPlan(updatedPlan);
+
+        try {
+            await apiClient.saveWeeklyLogs({
+                weekStart,
+                transcript: 'Update weekly task state',
+                weeklyPlan: updatedPlan,
+            });
+        } catch (error) {
+            logger.warn(MODULE, '周任务状态同步失败', { error });
+        }
+    }, [plan, weekStart]);
+
     const handleGenerate = useCallback(async () => {
         const textToUse = isEditingTranscript ? editableTranscript : transcript;
         if (!textToUse.trim()) return;
@@ -128,6 +172,9 @@ export default function WeeklyPage() {
         }
 
         setPlan(result.plan);
+        setTranscript('');
+        setEditableTranscript('');
+        setIsEditingTranscript(false);
         setProcessing({ step: 'done', message: '周计划生成完成！' });
         setTimeout(() => setProcessing({ step: 'idle', message: '' }), 1500);
     }, [transcript, editableTranscript, isEditingTranscript, weekStart]);
@@ -201,33 +248,12 @@ export default function WeeklyPage() {
                     </div>
                 )}
 
-                {transcript && !plan && (
-                    <div className="transcript-section" style={{ marginTop: '20px', padding: '10px', background: '#e0e0e0', border: '1px solid #ccc', borderRadius: '8px' }}>
-                        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                            <h2 className="section-title" style={{ fontSize: '12px', fontWeight: 'bold' }}>TRANSCRIPT DATA</h2>
-                            <button onClick={() => setIsEditingTranscript(!isEditingTranscript)} style={{ fontSize: '10px', padding: '2px 8px' }}>
-                                {isEditingTranscript ? '[ SAVE ]' : '[ EDIT ]'}
-                            </button>
-                        </div>
-                        {isEditingTranscript ? (
-                            <textarea
-                                className="transcript-editor"
-                                value={editableTranscript}
-                                onChange={(e) => setEditableTranscript(e.target.value)}
-                                rows={5}
-                                style={{ width: '100%', fontFamily: 'monospace', fontSize: '12px' }}
-                            />
-                        ) : (
-                            <p className="transcript-text" style={{ fontFamily: 'monospace', fontSize: '12px' }}>{transcript}</p>
-                        )}
-                        <div className="transcript-actions" style={{ marginTop: '10px' }}>
-                            <button className="btn-confirm" onClick={handleGenerate} style={{ width: '100%', padding: '8px', background: '#ff6b00', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>EXECUTE PLAN</button>
-                        </div>
-                    </div>
-                )}
-
                 {plan && (
                     <div className="weekly-content">
+                        <IssueCard
+                            card={weeklyPlanToIssueCard(plan)}
+                            onTaskToggle={(_, taskId, done) => handleTaskToggle(taskId, done)}
+                        />
                         <WeeklyView plan={plan} onPlanUpdate={setPlan} />
                         <div className="plan-actions" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
                             <button className="btn-secondary" onClick={() => setPlan(null)} style={{ padding: '8px 16px', background: '#ccc', border: 'none', borderRadius: '4px', fontWeight: 'bold', color: '#666' }}>RESET</button>
@@ -238,7 +264,7 @@ export default function WeeklyPage() {
 
             {!plan && !transcript && (
                 <>
-                    <div className="te-recorder-markers" style={{ pointerEvents: 'none', position: 'absolute', bottom: '48px', right: '14px', width: '120px', height: '120px', zIndex: 5 }}>
+                    <div className="te-recorder-markers" style={{ pointerEvents: 'none', position: 'absolute', bottom: 'calc(48px + var(--safe-area-bottom))', right: 'calc(14px + var(--safe-area-right))', width: '120px', height: '120px', zIndex: 5 }}>
                         {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
                             <div key={deg} className="te-marker-dot" style={{ position: 'absolute', top: '50%', left: '50%', width: '4px', height: '4px', background: '#ccc', borderRadius: '50%', margin: '-2px', transform: `rotate(${deg}deg) translate(58px)` }}></div>
                         ))}
@@ -252,6 +278,21 @@ export default function WeeklyPage() {
                     />
                 </>
             )}
+
+            <TranscriptModal
+                open={Boolean(transcript && !plan)}
+                transcript={transcript}
+                editableTranscript={editableTranscript}
+                isEditing={isEditingTranscript}
+                onToggleEdit={() => setIsEditingTranscript(!isEditingTranscript)}
+                onChange={setEditableTranscript}
+                onCancel={() => {
+                    setTranscript('');
+                    setEditableTranscript('');
+                    setIsEditingTranscript(false);
+                }}
+                onConfirm={handleGenerate}
+            />
 
             <footer className="te-hardware-footer">
                 <div className="te-brand-stamp">

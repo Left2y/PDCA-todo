@@ -61,8 +61,8 @@ export function RecorderButton({ onRecordingComplete, disabled }: RecorderButton
     return (
         <div className="te-recorder-module" style={{
             position: 'absolute',
-            bottom: '48px',
-            right: '14px', // (14px container offset + 10px internal button margin = 24px total) matches footer right: 24px
+            bottom: 'calc(48px + var(--safe-area-bottom))',
+            right: 'calc(14px + var(--safe-area-right))', // (14px container offset + 10px internal button margin = 24px total) matches footer right: 24px
             width: '120px',
             height: '120px',
             display: 'flex',
