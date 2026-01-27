@@ -7,6 +7,7 @@ import Link from 'next/link';
 import RecorderButton from '@/components/RecorderButton';
 import { IssueCard } from '@/components/IssueCard';
 import { LCDDisplay } from '@/components/LCDDisplay';
+import TranscriptModal from '@/components/TranscriptModal';
 import type { DailyPlan, IssueCard as IssueCardType, ProcessingState, AppSettings } from '@/types/plan';
 import { DEFAULT_SETTINGS } from '@/types/plan';
 import * as apiClient from '@/lib/apiClient';
@@ -204,8 +205,15 @@ export default function TodayPage() {
                     date: getToday(),
                     transcript: 'Sequence Terminated',
                     dailyPlan: newCards as any
-                }).then(() => {
+                }, { keepalive: true }).then(() => {
                     logger.info(MODULE, 'Cloud sync complete');
+                    apiClient.getLogs(getToday()).then((response) => {
+                        if (Array.isArray(response.dailyPlan)) {
+                            setCards(response.dailyPlan as IssueCardType[]);
+                        }
+                    }).catch(e => {
+                        logger.warn(MODULE, 'Refresh after delete failed', e);
+                    });
                 }).catch(e => {
                     logger.error(MODULE, 'Card termination sync failed', e);
                 });
@@ -302,32 +310,24 @@ export default function TodayPage() {
                 </div>
             )}
 
-            {transcript ? (
-                <div className="floating-transcript">
-                    <div className="transcript-box">
-                        <div className="transcript-header">
-                            <span>TRANSCRIPT DATA</span>
-                            <button onClick={() => setIsEditingTranscript(!isEditingTranscript)}>
-                                {isEditingTranscript ? '[ SAVE ]' : '[ EDIT ]'}
-                            </button>
-                        </div>
-                        {isEditingTranscript ? (
-                            <textarea
-                                value={editableTranscript}
-                                onChange={(e) => setEditableTranscript(e.target.value)}
-                            />
-                        ) : (
-                            <p>{transcript}</p>
-                        )}
-                        <div className="transcript-btns">
-                            <button className="btn-cancel" onClick={() => setTranscript('')}>DROP</button>
-                            <button className="btn-confirm" onClick={handleGenerate}>COMMIT</button>
-                        </div>
-                    </div>
-                </div>
-            ) : (
+            <TranscriptModal
+                open={Boolean(transcript)}
+                transcript={transcript}
+                editableTranscript={editableTranscript}
+                isEditing={isEditingTranscript}
+                onToggleEdit={() => setIsEditingTranscript(!isEditingTranscript)}
+                onChange={setEditableTranscript}
+                onCancel={() => {
+                    setTranscript('');
+                    setEditableTranscript('');
+                    setIsEditingTranscript(false);
+                }}
+                onConfirm={handleGenerate}
+            />
+
+            {!transcript && (
                 <>
-                    <div className="te-recorder-markers" style={{ pointerEvents: 'none', position: 'absolute', bottom: '48px', right: '14px', width: '120px', height: '120px', zIndex: 5 }}>
+                    <div className="te-recorder-markers" style={{ pointerEvents: 'none', position: 'absolute', bottom: 'calc(48px + var(--safe-area-bottom))', right: 'calc(14px + var(--safe-area-right))', width: '120px', height: '120px', zIndex: 5 }}>
                         {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
                             <div key={deg} className="te-marker-dot" style={{ position: 'absolute', top: '50%', left: '50%', width: '4px', height: '4px', background: '#ccc', borderRadius: '50%', margin: '-2px', transform: `rotate(${deg}deg) translate(58px)` }}></div>
                         ))}

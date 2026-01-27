@@ -6,6 +6,10 @@
   --color-orange: #FF5722;
   --font-main: "Inter", -apple-system, sans-serif;
   --font-lcd: "VT323", monospace;
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-right: env(safe-area-inset-right);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
 }
 
 * {
@@ -26,14 +30,13 @@ body {
   background: var(--background-world);
   color: #1a1a1a;
   font-family: var(--font-main);
-  /* Flex layout for horizontal centering only */
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  /* Changed from center to prevent top clipping when content overflows */
   padding: 20px;
-  overflow: auto;
   min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
 
   /* Table Texture */
   background-image: radial-gradient(circle, #333 1px, transparent 1px);
@@ -46,8 +49,13 @@ main {
   align-items: flex-start;
   width: 100%;
   min-height: 100%;
-  margin: auto 0;
-  /* Vertical centering via margin when content is shorter than viewport */
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: calc(12px + var(--safe-area-top)) calc(12px + var(--safe-area-right)) calc(12px + var(--safe-area-bottom)) calc(12px + var(--safe-area-left));
+  }
 }
 
 a {
