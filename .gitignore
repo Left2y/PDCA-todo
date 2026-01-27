@@ -45,3 +45,4 @@ next-env.d.ts
 *.db
 build_error.log
 build_error_2.log
+dev_server.*
