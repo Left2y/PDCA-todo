@@ -1,15 +1,15 @@
 // API 客户端 - 调用同域 API
 import logger from './logger';
-import type { DailyPlan, WeeklyPlan, SessionLog } from '@/types/plan';
+import type { DailyPlan, WeeklyPlan, SessionLog, IssueCard } from '@/types/plan';
 
 const MODULE = 'ApiClient';
 
 // 保存会话日志
 export async function saveLogs(
     data: {
-    date: string;
-    transcript: string;
-    dailyPlan: DailyPlan;
+        date: string;
+        transcript: string;
+        dailyPlan: DailyPlan | IssueCard[];
     },
     options?: { keepalive?: boolean }
 ): Promise<{ id: string; saved: boolean }> {
@@ -34,7 +34,7 @@ export async function saveLogs(
 // 获取某日的日志
 export async function getLogs(date: string): Promise<{
     date: string;
-    dailyPlan: DailyPlan | null;
+    dailyPlan: DailyPlan | IssueCard[] | null;
     logs: SessionLog[];
 }> {
     logger.info(MODULE, '获取日志', { date });

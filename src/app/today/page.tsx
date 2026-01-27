@@ -99,16 +99,16 @@ export default function TodayPage() {
                 const today = getToday();
                 const response = await apiClient.getLogs(today);
 
-                // For demonstration purposes, if we only have 0 or 1 card, 
-                // we'll force the 3 examples so the user can see the layout.
-                const cloudCards = response.dailyPlan
-                    ? (Array.isArray(response.dailyPlan) ? response.dailyPlan : [/* fallback to examples */])
-                    : [];
+                const cloudCards = Array.isArray(response.dailyPlan)
+                    ? (response.dailyPlan as IssueCardType[])
+                    : response.dailyPlan
+                        ? [response.dailyPlan as unknown as IssueCardType]
+                        : null;
 
-                if (cloudCards.length <= 1) {
-                    setCards(EXAMPLE_CARDS);
-                } else {
+                if (cloudCards) {
                     setCards(cloudCards);
+                } else {
+                    setCards(EXAMPLE_CARDS);
                 }
             } catch (error) {
                 setCards(EXAMPLE_CARDS);
@@ -199,25 +199,22 @@ export default function TodayPage() {
         setCards(prevCards => {
             const newCards = prevCards.filter(c => c.id !== cardId);
 
-            // 2. Async cloud sync for non-example cards
-            if (!cardId.startsWith('example-')) {
-                apiClient.saveLogs({
-                    date: getToday(),
-                    transcript: 'Sequence Terminated',
-                    dailyPlan: newCards as any
-                }, { keepalive: true }).then(() => {
-                    logger.info(MODULE, 'Cloud sync complete');
-                    apiClient.getLogs(getToday()).then((response) => {
-                        if (Array.isArray(response.dailyPlan)) {
-                            setCards(response.dailyPlan as IssueCardType[]);
-                        }
-                    }).catch(e => {
-                        logger.warn(MODULE, 'Refresh after delete failed', e);
-                    });
+            apiClient.saveLogs({
+                date: getToday(),
+                transcript: 'Sequence Terminated',
+                dailyPlan: newCards as any
+            }, { keepalive: true }).then(() => {
+                logger.info(MODULE, 'Cloud sync complete');
+                apiClient.getLogs(getToday()).then((response) => {
+                    if (Array.isArray(response.dailyPlan)) {
+                        setCards(response.dailyPlan as IssueCardType[]);
+                    }
                 }).catch(e => {
-                    logger.error(MODULE, 'Card termination sync failed', e);
+                    logger.warn(MODULE, 'Refresh after delete failed', e);
                 });
-            }
+            }).catch(e => {
+                logger.error(MODULE, 'Card termination sync failed', e);
+            });
 
             return newCards;
         });
@@ -228,10 +225,10 @@ export default function TodayPage() {
             {/* Independent Sticky Navigation + LCD */}
             <div className="sticky-nav-container">
                 <div className="te-nav-hardware">
-                    <Link href="/today" className="te-nav-btn active">日计划 [TODAY]</Link>
-                    <Link href="/weekly" className="te-nav-btn">周计划 [WEEK]</Link>
-                    <Link href="/history" className="te-nav-btn">历史 [LOGS]</Link>
-                    <Link href="/settings" className="te-nav-btn">设置 [SETTING]</Link>
+                    <Link href="/today" className="te-nav-btn active">TODAY</Link>
+                    <Link href="/weekly" className="te-nav-btn">WEEK</Link>
+                    <Link href="/history" className="te-nav-btn">LOGS</Link>
+                    <Link href="/settings" className="te-nav-btn">SETUP</Link>
                 </div>
 
                 <div className="te-lcd-section">
@@ -270,7 +267,7 @@ export default function TodayPage() {
             </header>
 
             {/* 事项卡列表 */}
-            <div className="cards-container" style={{ paddingBottom: '140px' }}>
+            <div className="cards-container">
                 <div className="te-side-labels-left">
                     <div className="side-label-item">
                         <span className="side-label-text">CHANNEL A</span>
@@ -326,20 +323,22 @@ export default function TodayPage() {
             />
 
             {!transcript && (
-                <>
-                    <div className="te-recorder-markers" style={{ pointerEvents: 'none', position: 'absolute', bottom: 'calc(48px + var(--safe-area-bottom))', right: 'calc(14px + var(--safe-area-right))', width: '120px', height: '120px', zIndex: 5 }}>
+                <div className="te-recorder-area">
+                    <div className="te-recorder-stack">
+                        <div className="te-recorder-markers">
                         {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
-                            <div key={deg} className="te-marker-dot" style={{ position: 'absolute', top: '50%', left: '50%', width: '4px', height: '4px', background: '#ccc', borderRadius: '50%', margin: '-2px', transform: `rotate(${deg}deg) translate(58px)` }}></div>
+                            <div key={deg} className="te-marker-dot" style={{ transform: `rotate(${deg}deg) translate(58px)` }}></div>
                         ))}
-                        <span className="te-marker-label label-hold" style={{ position: 'absolute', left: '-10px', bottom: '25px', fontSize: '7px', fontWeight: 900, color: '#999' }}>HOLD</span>
-                        <span className="te-marker-label label-record" style={{ position: 'absolute', left: '-10px', top: '15px', fontSize: '7px', fontWeight: 900, color: '#999' }}>RECORD</span>
-                        <span className="te-marker-label label-filter" style={{ position: 'absolute', right: '0', top: '5px', fontSize: '7px', fontWeight: 900, color: '#999' }}>FILTER</span>
+                        <span className="te-marker-label label-hold">HOLD</span>
+                        <span className="te-marker-label label-record">RECORD</span>
+                        <span className="te-marker-label label-filter">FILTER</span>
+                        </div>
+                        <RecorderButton
+                            onRecordingComplete={handleRecordingComplete}
+                            disabled={processing.step === 'transcribing' || processing.step === 'generating'}
+                        />
                     </div>
-                    <RecorderButton
-                        onRecordingComplete={handleRecordingComplete}
-                        disabled={processing.step === 'transcribing' || processing.step === 'generating'}
-                    />
-                </>
+                </div>
             )}
 
             {/* Bottom Hardware Markings */}

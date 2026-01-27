@@ -65,6 +65,26 @@ function weeklyPlanToIssueCard(plan: WeeklyPlan): IssueCardType {
 
 export default function WeeklyPage() {
     const [plan, setPlan] = useState<WeeklyPlan | null>(null);
+    const [sampleCards, setSampleCards] = useState<IssueCardType[]>([
+        {
+            id: 'weekly-sample-001',
+            title: 'WEEKLY SAMPLE CARD',
+            createdAt: new Date().toISOString(),
+            plan: {
+                date: new Date().toISOString().split('T')[0],
+                must: [
+                    { id: 'wsm-1', text: 'Draft weekly milestone checklist', estimateMin: 30, doneDef: 'Checklist shared', done: false },
+                    { id: 'wsm-2', text: 'Confirm scope with team', estimateMin: 20, doneDef: 'Scope aligned in chat', done: false }
+                ],
+                should: [
+                    { id: 'wss-1', text: 'Prepare risk notes', estimateMin: 15, doneDef: 'Risks listed', done: false }
+                ],
+                riskOfDay: { risk: 'Dependencies may slip mid-week', signal: 'Blocked by external API' },
+                oneAdjustment: { type: 'do', suggestion: 'Lock dependencies by Wednesday' },
+                assumptions: ['Assume core capacity is stable this week']
+            }
+        }
+    ]);
     const [transcript, setTranscript] = useState('');
     const [editableTranscript, setEditableTranscript] = useState('');
     const [isEditingTranscript, setIsEditingTranscript] = useState(false);
@@ -145,6 +165,25 @@ export default function WeeklyPage() {
         }
     }, [plan, weekStart]);
 
+    const handleSampleTaskToggle = useCallback((cardId: string, taskId: string, done: boolean) => {
+        setSampleCards(prevCards => prevCards.map(card => {
+            if (card.id !== cardId) return card;
+            const updateTask = (t: Task) => t.id === taskId ? { ...t, done } : t;
+            return {
+                ...card,
+                plan: {
+                    ...card.plan,
+                    must: card.plan.must.map(updateTask),
+                    should: card.plan.should.map(updateTask)
+                }
+            };
+        }));
+    }, []);
+
+    const handleSampleDelete = useCallback((cardId: string) => {
+        setSampleCards(prevCards => prevCards.filter(card => card.id !== cardId));
+    }, []);
+
     const handleGenerate = useCallback(async () => {
         const textToUse = isEditingTranscript ? editableTranscript : transcript;
         if (!textToUse.trim()) return;
@@ -184,10 +223,10 @@ export default function WeeklyPage() {
             {/* Independent Sticky Navigation + LCD */}
             <div className="sticky-nav-container">
                 <div className="te-nav-hardware">
-                    <Link href="/today" className="te-nav-btn">日计划 [TODAY]</Link>
-                    <Link href="/weekly" className="te-nav-btn active">周计划 [WEEK]</Link>
-                    <Link href="/history" className="te-nav-btn">历史 [LOGS]</Link>
-                    <Link href="/settings" className="te-nav-btn">设置 [SETTING]</Link>
+                    <Link href="/today" className="te-nav-btn">TODAY</Link>
+                    <Link href="/weekly" className="te-nav-btn active">WEEK</Link>
+                    <Link href="/history" className="te-nav-btn">LOGS</Link>
+                    <Link href="/settings" className="te-nav-btn">SETUP</Link>
                 </div>
 
                 <div className="te-lcd-section">
@@ -223,7 +262,7 @@ export default function WeeklyPage() {
                 </div>
             </header>
 
-            <div className="cards-container" style={{ paddingBottom: '140px' }}>
+            <div className="cards-container">
                 <div className="te-side-labels-left">
                     <div className="side-label-item">
                         <span className="side-label-text">WEEK</span>
@@ -248,6 +287,19 @@ export default function WeeklyPage() {
                     </div>
                 )}
 
+                {sampleCards.length > 0 && (
+                    <div className="weekly-content">
+                        {sampleCards.map((card) => (
+                            <IssueCard
+                                key={card.id}
+                                card={card}
+                                onTaskToggle={handleSampleTaskToggle}
+                                onDelete={handleSampleDelete}
+                            />
+                        ))}
+                    </div>
+                )}
+
                 {plan && (
                     <div className="weekly-content">
                         <IssueCard
@@ -263,20 +315,22 @@ export default function WeeklyPage() {
             </div>
 
             {!plan && !transcript && (
-                <>
-                    <div className="te-recorder-markers" style={{ pointerEvents: 'none', position: 'absolute', bottom: 'calc(48px + var(--safe-area-bottom))', right: 'calc(14px + var(--safe-area-right))', width: '120px', height: '120px', zIndex: 5 }}>
-                        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
-                            <div key={deg} className="te-marker-dot" style={{ position: 'absolute', top: '50%', left: '50%', width: '4px', height: '4px', background: '#ccc', borderRadius: '50%', margin: '-2px', transform: `rotate(${deg}deg) translate(58px)` }}></div>
-                        ))}
-                        <span className="te-marker-label label-hold" style={{ position: 'absolute', left: '-10px', bottom: '25px', fontSize: '7px', fontWeight: 900, color: '#999' }}>HOLD</span>
-                        <span className="te-marker-label label-record" style={{ position: 'absolute', left: '-10px', top: '15px', fontSize: '7px', fontWeight: 900, color: '#999' }}>RECORD</span>
-                        <span className="te-marker-label label-filter" style={{ position: 'absolute', right: '0', top: '5px', fontSize: '7px', fontWeight: 900, color: '#999' }}>FILTER</span>
+                <div className="te-recorder-area">
+                    <div className="te-recorder-stack">
+                        <div className="te-recorder-markers">
+                            {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
+                                <div key={deg} className="te-marker-dot" style={{ transform: `rotate(${deg}deg) translate(58px)` }}></div>
+                            ))}
+                            <span className="te-marker-label label-hold">HOLD</span>
+                            <span className="te-marker-label label-record">RECORD</span>
+                            <span className="te-marker-label label-filter">FILTER</span>
+                        </div>
+                        <RecorderButton
+                            onRecordingComplete={handleRecordingComplete}
+                            disabled={processing.step === 'transcribing' || processing.step === 'generating'}
+                        />
                     </div>
-                    <RecorderButton
-                        onRecordingComplete={handleRecordingComplete}
-                        disabled={processing.step === 'transcribing' || processing.step === 'generating'}
-                    />
-                </>
+                </div>
             )}
 
             <TranscriptModal

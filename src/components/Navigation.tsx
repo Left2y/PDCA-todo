@@ -25,19 +25,19 @@ export default function Navigation() {
                     href="/today"
                     className={`nav-link ${pathname === '/today' ? 'active' : ''}`}
                 >
-                    <span>日计划</span>
+                    <span>TODAY</span>
                 </Link>
                 <Link
                     href="/weekly"
                     className={`nav-link ${pathname === '/weekly' ? 'active' : ''}`}
                 >
-                    <span>周计划</span>
+                    <span>WEEK</span>
                 </Link>
                 <Link
                     href="/history"
                     className={`nav-link ${pathname === '/history' ? 'active' : ''}`}
                 >
-                    <span>历史</span>
+                    <span>LOGS</span>
                 </Link>
             </div>
         </nav>
