@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { LCDDisplay } from '@/components/LCDDisplay';
 import { IssueCard } from '@/components/IssueCard';
@@ -121,6 +121,37 @@ export default function HistoryPage() {
         // 历史记录为只读，不允许修改
     };
 
+    const handleCardDelete = useCallback((date: string, cardId: string) => {
+        setDayGroups(prevGroups => {
+            let updatedCards: IssueCardType[] | null = null;
+            const nextGroups: DayGroup[] = [];
+
+            for (const group of prevGroups) {
+                if (group.date !== date) {
+                    nextGroups.push(group);
+                    continue;
+                }
+
+                updatedCards = group.cards.filter(card => card.id !== cardId);
+                if (updatedCards.length > 0) {
+                    nextGroups.push({ ...group, cards: updatedCards });
+                }
+            }
+
+            if (updatedCards !== null) {
+                apiClient.saveLogs({
+                    date,
+                    transcript: 'Delete history card',
+                    dailyPlan: updatedCards as any
+                }).catch(error => {
+                    logger.warn(MODULE, '历史卡片删除同步失败', { error });
+                });
+            }
+
+            return nextGroups;
+        });
+    }, []);
+
     return (
         <div className="today-page">
             {/* Independent Sticky Navigation + LCD */}
@@ -224,6 +255,7 @@ export default function HistoryPage() {
                                         key={card.id}
                                         card={card}
                                         onTaskToggle={handleTaskToggle}
+                                        onDelete={(cardId) => handleCardDelete(group.date, cardId)}
                                     />
                                 ))}
                             </div>

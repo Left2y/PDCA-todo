@@ -3,6 +3,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveLog, getLogsByDate } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
+const NO_STORE_HEADERS = {
+    'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+    Pragma: 'no-cache',
+};
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -43,7 +50,7 @@ export async function GET(request: NextRequest) {
         if (!date) {
             return NextResponse.json(
                 { error: 'Missing date parameter' },
-                { status: 400 }
+                { status: 400, headers: NO_STORE_HEADERS }
             );
         }
 
@@ -54,12 +61,12 @@ export async function GET(request: NextRequest) {
             dailyPlan: result.dailyPlan,
             logs: result.logs,
             cards: [], // TODO: implement cards
-        });
+        }, { headers: NO_STORE_HEADERS });
     } catch (error) {
         console.error('Error in /api/logs GET:', error);
         return NextResponse.json(
             { error: 'Failed to get logs', details: error instanceof Error ? error.message : String(error) },
-            { status: 500 }
+            { status: 500, headers: NO_STORE_HEADERS }
         );
     }
 }

@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveWeeklyLog, getWeeklyLogsByWeek } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
+const NO_STORE_HEADERS = {
+    'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+    Pragma: 'no-cache',
+};
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -40,7 +47,7 @@ export async function GET(request: NextRequest) {
         if (!weekStart) {
             return NextResponse.json(
                 { error: 'Missing weekStart parameter' },
-                { status: 400 }
+                { status: 400, headers: NO_STORE_HEADERS }
             );
         }
 
@@ -50,12 +57,12 @@ export async function GET(request: NextRequest) {
             weekStart,
             weeklyPlan: result.weeklyPlan,
             logs: result.logs,
-        });
+        }, { headers: NO_STORE_HEADERS });
     } catch (error) {
         console.error('Error getting weekly logs:', error);
         return NextResponse.json(
             { error: 'Failed to get weekly logs' },
-            { status: 500 }
+            { status: 500, headers: NO_STORE_HEADERS }
         );
     }
 }

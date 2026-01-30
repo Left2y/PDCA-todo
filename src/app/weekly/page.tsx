@@ -65,26 +65,6 @@ function weeklyPlanToIssueCard(plan: WeeklyPlan): IssueCardType {
 
 export default function WeeklyPage() {
     const [plan, setPlan] = useState<WeeklyPlan | null>(null);
-    const [sampleCards, setSampleCards] = useState<IssueCardType[]>([
-        {
-            id: 'weekly-sample-001',
-            title: 'WEEKLY SAMPLE CARD',
-            createdAt: new Date().toISOString(),
-            plan: {
-                date: new Date().toISOString().split('T')[0],
-                must: [
-                    { id: 'wsm-1', text: 'Draft weekly milestone checklist', estimateMin: 30, doneDef: 'Checklist shared', done: false },
-                    { id: 'wsm-2', text: 'Confirm scope with team', estimateMin: 20, doneDef: 'Scope aligned in chat', done: false }
-                ],
-                should: [
-                    { id: 'wss-1', text: 'Prepare risk notes', estimateMin: 15, doneDef: 'Risks listed', done: false }
-                ],
-                riskOfDay: { risk: 'Dependencies may slip mid-week', signal: 'Blocked by external API' },
-                oneAdjustment: { type: 'do', suggestion: 'Lock dependencies by Wednesday' },
-                assumptions: ['Assume core capacity is stable this week']
-            }
-        }
-    ]);
     const [transcript, setTranscript] = useState('');
     const [editableTranscript, setEditableTranscript] = useState('');
     const [isEditingTranscript, setIsEditingTranscript] = useState(false);
@@ -165,24 +145,16 @@ export default function WeeklyPage() {
         }
     }, [plan, weekStart]);
 
-    const handleSampleTaskToggle = useCallback((cardId: string, taskId: string, done: boolean) => {
-        setSampleCards(prevCards => prevCards.map(card => {
-            if (card.id !== cardId) return card;
-            const updateTask = (t: Task) => t.id === taskId ? { ...t, done } : t;
-            return {
-                ...card,
-                plan: {
-                    ...card.plan,
-                    must: card.plan.must.map(updateTask),
-                    should: card.plan.should.map(updateTask)
-                }
-            };
-        }));
-    }, []);
+    const handlePlanDelete = useCallback(async () => {
+        if (!plan) return;
+        setPlan(null);
 
-    const handleSampleDelete = useCallback((cardId: string) => {
-        setSampleCards(prevCards => prevCards.filter(card => card.id !== cardId));
-    }, []);
+        try {
+            await apiClient.deleteWeeklyPlan(weekStart);
+        } catch (error) {
+            logger.warn(MODULE, '删除周计划失败', { error });
+        }
+    }, [plan, weekStart]);
 
     const handleGenerate = useCallback(async () => {
         const textToUse = isEditingTranscript ? editableTranscript : transcript;
@@ -287,24 +259,12 @@ export default function WeeklyPage() {
                     </div>
                 )}
 
-                {sampleCards.length > 0 && (
-                    <div className="weekly-content">
-                        {sampleCards.map((card) => (
-                            <IssueCard
-                                key={card.id}
-                                card={card}
-                                onTaskToggle={handleSampleTaskToggle}
-                                onDelete={handleSampleDelete}
-                            />
-                        ))}
-                    </div>
-                )}
-
                 {plan && (
                     <div className="weekly-content">
                         <IssueCard
                             card={weeklyPlanToIssueCard(plan)}
                             onTaskToggle={(_, taskId, done) => handleTaskToggle(taskId, done)}
+                            onDelete={() => handlePlanDelete()}
                         />
                         <WeeklyView plan={plan} onPlanUpdate={setPlan} />
                         <div className="plan-actions" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>

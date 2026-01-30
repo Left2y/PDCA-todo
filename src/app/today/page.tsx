@@ -17,63 +17,6 @@ import './Today.css';
 
 const MODULE = 'TodayPage';
 
-const EXAMPLE_CARDS: IssueCardType[] = [
-    {
-        id: 'example-1',
-        title: '示例 A：官网首页视觉改版',
-        createdAt: new Date().toISOString(),
-        plan: {
-            date: new Date().toISOString().split('T')[0],
-            must: [
-                { id: 'm1', text: '完成首屏 Banner 的高保真设计', estimateMin: 60, doneDef: '导出 Figma 链接并发送至群聊', done: false },
-                { id: 'm2', text: '与前端对接新的响应式 Breakpoints', estimateMin: 30, doneDef: '确认所有断点样式无误', done: false }
-            ],
-            should: [
-                { id: 's1', text: '优化深色模式下的对比度细节', estimateMin: 45, doneDef: '通过无障碍对比度测试', done: false }
-            ],
-            riskOfDay: { risk: '设计稿可能因字体缺失导致还原度下降', signal: '前端反馈本地渲染不一致' },
-            oneAdjustment: { type: 'do', suggestion: '优先打包字体资源，确保开发环境一致' },
-            assumptions: ['认为当前的蓝紫色调符合品牌升级方向']
-        }
-    },
-    {
-        id: 'example-2',
-        title: '示例 B：双周会技术同步',
-        createdAt: new Date().toISOString(),
-        plan: {
-            date: new Date().toISOString().split('T')[0],
-            must: [
-                { id: 'm1', text: '准备架构演进路线图 PPT', estimateMin: 120, doneDef: 'PPT 上传至网盘', done: true },
-                { id: 'm2', text: '整理遗留需求清理列表', estimateMin: 40, doneDef: '完成清单导出', done: false }
-            ],
-            should: [
-                { id: 's1', text: '收集各业务线目前的痛点', estimateMin: 60, doneDef: '记录至少 3 条有效痛点', done: false }
-            ],
-            riskOfDay: { risk: '会议时间可能被紧急修复任务占用', signal: '产服反馈有线上严重 Bug' },
-            oneAdjustment: { type: 'do', suggestion: '若发生线上异常，会议顺延至下午 4 点' },
-            assumptions: ['认为目前的服务端瓶颈在于数据库 IO']
-        }
-    },
-    {
-        id: 'example-3',
-        title: '示例 C：智能硬件 PWA 性能压测',
-        createdAt: new Date().toISOString(),
-        plan: {
-            date: new Date().toISOString().split('T')[0],
-            must: [
-                { id: 'm1', text: '执行 Lighthouse 移动端基准测试', estimateMin: 20, doneDef: '记录初次基准分数', done: false },
-                { id: 'm2', text: '针对 Service Worker 缓存进行模拟断网测试', estimateMin: 40, doneDef: '离线模式下页面核心逻辑正常加载', done: false }
-            ],
-            should: [
-                { id: 's1', text: '对比测试不同 Android 版本的 Webview 渲染性能', estimateMin: 90, doneDef: '形成渲染性能对照表', done: false }
-            ],
-            riskOfDay: { risk: '部分低端测试样机可能因过热触发限频', signal: '测试分数出现波动下落' },
-            oneAdjustment: { type: 'do', suggestion: '保持环境通风，测试间隙安排样机冷却时间' },
-            assumptions: ['认为资源缓存策略是影响首次加载的关键因素']
-        }
-    }
-];
-
 export default function TodayPage() {
     const [cards, setCards] = useState<IssueCardType[]>([]);
     const [transcript, setTranscript] = useState('');
@@ -105,13 +48,9 @@ export default function TodayPage() {
                         ? [response.dailyPlan as unknown as IssueCardType]
                         : null;
 
-                if (cloudCards) {
-                    setCards(cloudCards);
-                } else {
-                    setCards(EXAMPLE_CARDS);
-                }
+                setCards(cloudCards ?? []);
             } catch (error) {
-                setCards(EXAMPLE_CARDS);
+                setCards([]);
             }
         };
         loadData();
