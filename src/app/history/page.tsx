@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { LCDDisplay } from '@/components/LCDDisplay';
 import { IssueCard } from '@/components/IssueCard';
@@ -121,15 +121,46 @@ export default function HistoryPage() {
         // 历史记录为只读，不允许修改
     };
 
+    const handleCardDelete = useCallback((date: string, cardId: string) => {
+        setDayGroups(prevGroups => {
+            let updatedCards: IssueCardType[] | null = null;
+            const nextGroups: DayGroup[] = [];
+
+            for (const group of prevGroups) {
+                if (group.date !== date) {
+                    nextGroups.push(group);
+                    continue;
+                }
+
+                updatedCards = group.cards.filter(card => card.id !== cardId);
+                if (updatedCards.length > 0) {
+                    nextGroups.push({ ...group, cards: updatedCards });
+                }
+            }
+
+            if (updatedCards !== null) {
+                apiClient.saveLogs({
+                    date,
+                    transcript: 'Delete history card',
+                    dailyPlan: updatedCards as any
+                }).catch(error => {
+                    logger.warn(MODULE, '历史卡片删除同步失败', { error });
+                });
+            }
+
+            return nextGroups;
+        });
+    }, []);
+
     return (
         <div className="today-page">
             {/* Independent Sticky Navigation + LCD */}
             <div className="sticky-nav-container">
                 <div className="te-nav-hardware">
-                    <Link href="/today" className="te-nav-btn">日计划 [TODAY]</Link>
-                    <Link href="/weekly" className="te-nav-btn">周计划 [WEEK]</Link>
-                    <Link href="/history" className="te-nav-btn active">历史 [LOGS]</Link>
-                    <Link href="/settings" className="te-nav-btn">设置 [SETTING]</Link>
+                    <Link href="/today" className="te-nav-btn">TODAY</Link>
+                    <Link href="/weekly" className="te-nav-btn">WEEK</Link>
+                    <Link href="/history" className="te-nav-btn active">LOGS</Link>
+                    <Link href="/settings" className="te-nav-btn">SETUP</Link>
                 </div>
 
                 <div className="te-lcd-section">
@@ -165,7 +196,7 @@ export default function HistoryPage() {
                 </div>
             </header>
 
-            <div className="cards-container" style={{ paddingBottom: '140px' }}>
+            <div className="cards-container">
                 <div className="te-side-labels-left">
                     <div className="side-label-item">
                         <span className="side-label-text">ARCHIVE</span>
@@ -224,6 +255,7 @@ export default function HistoryPage() {
                                         key={card.id}
                                         card={card}
                                         onTaskToggle={handleTaskToggle}
+                                        onDelete={(cardId) => handleCardDelete(group.date, cardId)}
                                     />
                                 ))}
                             </div>

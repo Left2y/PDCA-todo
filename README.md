@@ -73,7 +73,7 @@ npm run dev
 | :--- | :--- |
 | **前端框架** | Next.js 15 (App Router), React 19, TypeScript |
 | **设计系统** | Vanilla CSS (High Fidelity Industrial Design) |
-| **数据库** | SQLite (via `sql.js`) |
+| **数据库** | SQLite (via `better-sqlite3`) |
 | **AI 引擎** | 阿里云百炼 (ASR: Paraformer / LLM: Qwen) |
 | **部署模式** | Standalone / Docker Compose |
 

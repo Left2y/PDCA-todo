@@ -75,3 +75,9 @@
     font-size: 0.9rem;
     margin-top: 0.5rem;
 }
+
+.weekly-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

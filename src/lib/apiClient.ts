@@ -1,21 +1,25 @@
 // API 客户端 - 调用同域 API
 import logger from './logger';
-import type { DailyPlan, WeeklyPlan, SessionLog } from '@/types/plan';
+import type { DailyPlan, WeeklyPlan, SessionLog, IssueCard } from '@/types/plan';
 
 const MODULE = 'ApiClient';
 
 // 保存会话日志
-export async function saveLogs(data: {
-    date: string;
-    transcript: string;
-    dailyPlan: DailyPlan;
-}): Promise<{ id: string; saved: boolean }> {
+export async function saveLogs(
+    data: {
+        date: string;
+        transcript: string;
+        dailyPlan: DailyPlan | IssueCard[];
+    },
+    options?: { keepalive?: boolean }
+): Promise<{ id: string; saved: boolean }> {
     logger.info(MODULE, '保存会话日志', { date: data.date });
 
     const response = await fetch('/api/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        keepalive: options?.keepalive ?? false,
     });
 
     if (!response.ok) {
@@ -30,12 +34,12 @@ export async function saveLogs(data: {
 // 获取某日的日志
 export async function getLogs(date: string): Promise<{
     date: string;
-    dailyPlan: DailyPlan | null;
+    dailyPlan: DailyPlan | IssueCard[] | null;
     logs: SessionLog[];
 }> {
     logger.info(MODULE, '获取日志', { date });
 
-    const response = await fetch(`/api/logs?date=${date}`);
+    const response = await fetch(`/api/logs?date=${date}`, { cache: 'no-store' });
 
     if (!response.ok) {
         const error = await response.text();
@@ -50,7 +54,7 @@ export async function getLogs(date: string): Promise<{
 export async function getDailyPlan(date: string): Promise<DailyPlan | null> {
     logger.info(MODULE, '获取日计划', { date });
 
-    const response = await fetch(`/api/daily-plans/${date}`);
+    const response = await fetch(`/api/daily-plans/${date}`, { cache: 'no-store' });
 
     if (response.status === 404) {
         return null;
@@ -157,7 +161,7 @@ export async function getWeeklyLogs(weekStart: string): Promise<{
 }> {
     logger.info(MODULE, '获取周日志', { weekStart });
 
-    const response = await fetch(`/api/weekly-logs?weekStart=${weekStart}`);
+    const response = await fetch(`/api/weekly-logs?weekStart=${weekStart}`, { cache: 'no-store' });
 
     if (!response.ok) {
         const error = await response.text();
@@ -172,7 +176,7 @@ export async function getWeeklyLogs(weekStart: string): Promise<{
 export async function getWeeklyPlan(weekStart: string): Promise<WeeklyPlan | null> {
     logger.info(MODULE, '获取周计划', { weekStart });
 
-    const response = await fetch(`/api/weekly-plans/${weekStart}`);
+    const response = await fetch(`/api/weekly-plans/${weekStart}`, { cache: 'no-store' });
 
     if (response.status === 404) {
         return null;
@@ -182,6 +186,23 @@ export async function getWeeklyPlan(weekStart: string): Promise<WeeklyPlan | nul
         const error = await response.text();
         logger.error(MODULE, '获取周计划失败', { error });
         throw new Error(`获取失败: ${response.status}`);
+    }
+
+    return response.json();
+}
+
+// 删除某周计划
+export async function deleteWeeklyPlan(weekStart: string): Promise<{ ok: boolean }> {
+    logger.info(MODULE, '删除周计划', { weekStart });
+
+    const response = await fetch(`/api/weekly-plans/${weekStart}`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        const error = await response.text();
+        logger.error(MODULE, '删除周计划失败', { error });
+        throw new Error(`删除失败: ${response.status}`);
     }
 
     return response.json();

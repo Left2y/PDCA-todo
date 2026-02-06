@@ -59,18 +59,7 @@ export function RecorderButton({ onRecordingComplete, disabled }: RecorderButton
     }, []);
 
     return (
-        <div className="te-recorder-module" style={{
-            position: 'absolute',
-            bottom: '48px',
-            right: '14px', // (14px container offset + 10px internal button margin = 24px total) matches footer right: 24px
-            width: '120px',
-            height: '120px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100,
-            pointerEvents: 'none'
-        }}>
+        <div className="te-recorder-module">
             {state.error && (
                 <div className="te-error-toast">
                     <span>ERR: {state.error}</span>
@@ -78,31 +67,17 @@ export function RecorderButton({ onRecordingComplete, disabled }: RecorderButton
             )}
 
             {!state.isRecording ? (
-                <div className="te-knob-area" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto' }}>
+                <div className="te-knob-area">
                     <button
                         className="te-knob-btn-core tactile-btn"
                         onClick={handleStart}
                         disabled={disabled}
-                        style={{
-                            width: '94px', // Slightly smaller container
-                            height: '94px',
-                            background: "url('/assets/rec_knob_v3.png') no-repeat center center",
-                            backgroundSize: '115% 115%', // Zoom in to push white ring out
-                            border: 'none',
-                            borderRadius: '50%',
-                            overflow: 'hidden',
-                            cursor: 'pointer',
-                            outline: 'none',
-                            backgroundColor: 'transparent',
-                            mixBlendMode: 'multiply',
-                            boxShadow: '0 6px 12px rgba(0,0,0,0.4), inset 0 0 10px rgba(0,0,0,0.1)'
-                        }}
                     >
                         {/* 交互层 */}
                     </button>
                 </div>
             ) : (
-                <div className="recording-state-container" style={{ pointerEvents: 'auto' }}>
+                <div className="recording-state-container">
                     <div className="te-lcd-timer">
                         {formatDuration(state.duration)}
                         <span className="blink-dot">.</span>

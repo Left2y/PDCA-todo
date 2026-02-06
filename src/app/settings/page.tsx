@@ -183,10 +183,10 @@ export default function SettingsPage() {
             {/* Independent Sticky Navigation + LCD */}
             <div className="sticky-nav-container">
                 <div className="te-nav-hardware">
-                    <Link href="/today" className="te-nav-btn">日计划 [TODAY]</Link>
-                    <Link href="/weekly" className="te-nav-btn">周计划 [WEEK]</Link>
-                    <Link href="/history" className="te-nav-btn">历史 [LOGS]</Link>
-                    <Link href="/settings" className="te-nav-btn active">设置 [SETTING]</Link>
+                    <Link href="/today" className="te-nav-btn">TODAY</Link>
+                    <Link href="/weekly" className="te-nav-btn">WEEK</Link>
+                    <Link href="/history" className="te-nav-btn">LOGS</Link>
+                    <Link href="/settings" className="te-nav-btn active">SETUP</Link>
                 </div>
 
                 <div className="te-lcd-section">
@@ -222,7 +222,7 @@ export default function SettingsPage() {
                 </div>
             </header>
 
-            <div className="cards-container" style={{ paddingBottom: '140px' }}>
+            <div className="cards-container">
                 <div className="te-side-labels-left">
                     <div className="side-label-item">
                         <span className="side-label-text">CONFIG</span>
